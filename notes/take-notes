@@ -1,3 +1,3 @@
 # run me to take notes for the day
 
-vim $(date +%a-%D).txt
+vim $(date +%a-%D).md

@@ -1,7 +1,4 @@
-CFLAGS=-std=c++11 -Wall
-
-%.o: %.c $(DEPS)
-		$(CC) -c -o $@ $< $(CFLAGS)
+CFLAGS=-g -std=c++11 -Wall
 
 all: main
 

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "filestream.h"
+#include <vector>
+
+#include "token.h"
 
 /*
  * Implements a lexer. Generates a vector of Tokens based on the content of
@@ -9,5 +11,5 @@
 
 class Scanner {
 public:
-	static void lex_file(Filestream *input);
+	static std::vector<Token>* lex_file(std::string str);
 };

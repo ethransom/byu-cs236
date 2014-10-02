@@ -1,0 +1,5 @@
+Queries:
+   marriedTo ('Bea' , 'Zed')?
+
+Rules:
+   marriedTo( X,Y ) :- marriedTo(Y,X) .

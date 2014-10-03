@@ -1,7 +1,7 @@
 #include "token.h"
 
 // this must exactly match the order of Token_type
-std::string Token_type_human_readable[] = {
+extern const std::string Token_type_human_readable[] = {
 	"COMMA",
 	"PERIOD",
 	"Q_MARK",
@@ -17,9 +17,10 @@ std::string Token_type_human_readable[] = {
 	"STRING",
 };
 
-void Token::print() {
-	std::cout << "("
-		<< Token_type_human_readable[type] << ","
-		<< "\"" << str << "\"" << ","
-		<< line_num << ")" << std::endl;
+std::ostream& operator << (std::ostream& os, const Token& token) {
+	os << "("
+		<< Token_type_human_readable[token.type] << ","
+		<< "\"" << token.str << "\"" << ","
+		<< token.line_num << ")";
+	return os;
 }

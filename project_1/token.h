@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <ostream>
 #include <string>
 
 typedef enum {
@@ -27,8 +28,10 @@ public:
 		line_num = l;
 	}
 
+	Token() {};
+
 	// print the token in the pattern '(TYPE, "string value", line_number)'
-	void print();
+	friend std::ostream& operator<<(std::ostream& os, const Token& token);
 
 	Token_type type;
 	std::string str;

@@ -4,11 +4,12 @@
 
 #include "scanner.h"
 #include "token.h"
+#include "parser.h"
 
 std::string slurp(std::ifstream& in) {
-    std::stringstream sstr;
-    sstr << in.rdbuf();
-    return sstr.str();
+	std::stringstream sstr;
+	sstr << in.rdbuf();
+	return sstr.str();
 }
 
 /*
@@ -24,13 +25,25 @@ int main(int argc, char** argv) {
 
 		std::vector<Token> *tokens = Scanner::lex_file(str);
 
-		if (tokens == NULL) return 1;
-
 		for (std::vector<Token>::iterator i = tokens->begin(); i != tokens->end(); ++i) {
-			i->print();
+				std::cout << *i << std::endl;
 		}
 
-		std::cout << "Total Tokens = " << tokens->size() << std::endl;
+		std::cout << "===========================================" << std::endl;
+
+		if (tokens == NULL) return 1;
+
+		Parser parser(tokens);
+
+		AST* ast;
+		try {
+			ast = parser.parse_tokens();
+		} catch (ParseError e) {
+			std::cout << "Failure!" << std::endl << "  " << tokens->front() << std::endl;
+			continue;
+		}
+
+		std::cout << "Success!" << std::endl << *ast << std::endl;
 	}
 
 	return 0;

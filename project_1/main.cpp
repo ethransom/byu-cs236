@@ -44,6 +44,9 @@ int main(int argc, char** argv) {
 		}
 
 		std::cout << "Success!" << std::endl << *ast << std::endl;
+
+		delete ast;
+		delete tokens;
 	}
 
 	return 0;

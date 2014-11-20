@@ -1,5 +1,21 @@
 #include "ast.h"
 
+AST::~AST() {
+	std::cout << "DEALLALOCPHAte'" << std::endl;
+
+	for (int i = 0; i < scheme_list.size(); i++)
+		delete scheme_list[i];
+
+	for (int i = 0; i < fact_list.size(); i++)
+		delete fact_list[i];
+
+	for (int i = 0; i < rule_list.size(); i++)
+		delete rule_list[i];
+
+	for (int i = 0; i < query_list.size(); i++)
+		delete query_list[i];
+}
+
 std::ostream& operator << (std::ostream& os, const AST& ast) {
 	os << "HELLO IDSLJKF" << std::endl;
 	// os << "Schemes(" << ast.schemes_list.size() << "):" << std::endl;

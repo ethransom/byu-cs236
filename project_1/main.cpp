@@ -22,13 +22,19 @@ int main(int argc, char** argv) {
 
 		std::string str = slurp(input);
 
-		std::vector<Token> *tokens = Scanner::lex_file(str);
+		std::vector<Token>* tokens;
 
-		if (tokens == NULL) return 1;
+		int lex_line_of_error = Scanner::lex_file(str, &tokens);
+
+		if (lex_line_of_error > -1) {
+			std::cout << "Input Error on line " << lex_line_of_error << std::endl;
+		}
 
 		for (std::vector<Token>::iterator i = tokens->begin(); i != tokens->end(); ++i) {
 			i->print();
 		}
+
+		delete tokens;
 
 		std::cout << "Total Tokens = " << tokens->size() << std::endl;
 	}

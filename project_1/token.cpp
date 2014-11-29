@@ -17,9 +17,10 @@ std::string Token_type_human_readable[] = {
 	"STRING",
 };
 
-void Token::print() {
-	std::cout << "("
-		<< Token_type_human_readable[type] << ","
-		<< "\"" << str << "\"" << ","
-		<< line_num << ")" << std::endl;
+std::ostream& operator<<(std::ostream& os, const Token& obj) {
+	os << "("
+		<< Token_type_human_readable[obj.type] << ","
+		<< "\"" << obj.str << "\"" << ","
+		<< obj.line_num << ")";
+	return os;
 }

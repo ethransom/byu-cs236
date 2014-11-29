@@ -27,10 +27,9 @@ public:
 		line_num = l;
 	}
 
-	// print the token in the pattern '(TYPE, "string value", line_number)'
-	void print();
-
 	Token_type type;
 	std::string str;
 	int line_num;
 };
+
+std::ostream& operator<<(std::ostream& os, const Token& obj);

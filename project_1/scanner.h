@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <queue>
 
 #include "token.h"
 
@@ -11,5 +11,7 @@
 
 class Scanner {
 public:
-	static std::vector<Token>* lex_file(std::string str);
+	// lex the given string, overwrite token_vec to point to a vector of tokens
+	// return the line of an error, or -1 if successful
+	static int lex_file(std::string str, std::queue<Token>* token_vec);
 };

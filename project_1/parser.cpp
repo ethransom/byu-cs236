@@ -11,10 +11,10 @@ extern std::string Token_type_human_readable[];
 
 bool Parser::accept(Token_type type) {
 	Token token = tokens->front();
-	std::cout << "checking " << Token_type_human_readable[token.type]
-		<< " with " << Token_type_human_readable[type] << std::endl;
+	// std::cout << "checking " << Token_type_human_readable[token.type]
+		// << " with " << Token_type_human_readable[type] << std::endl;
 	if (token.type == type) {
-		tokens->erase(tokens->begin());
+		tokens->pop();
 		return true;
 	} else {
 		return false;
@@ -26,7 +26,7 @@ bool Parser::accept(Token_type type, std::string* dest) {
 	std::cout << "checking " << Token_type_human_readable[token.type]
 		<< " with " << Token_type_human_readable[type] << std::endl;
 	if (token.type == type) {
-		tokens->erase(tokens->begin());
+		tokens->pop();
 		*dest = token.str;
 		return true;
 	} else {
@@ -194,7 +194,7 @@ std::vector<Token*> Parser::parameter_list() {
 Token* Parser::parameter() {
 	Token token = tokens->front();
 	if (token.type == ID || token.type == STRING) {
-		tokens->erase(tokens->begin());
+		tokens->pop();
 		auto t = new Token();
 		*t = token;
 		return t;
@@ -205,7 +205,7 @@ Token* Parser::parameter() {
 
 // PUBLIC METHODS
 
-Parser::Parser(std::vector<Token>* t) {
+Parser::Parser(std::queue<Token>* t) {
 	tokens = t;
 }
 

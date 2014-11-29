@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <queue>
 #include <vector>
 #include <exception>
 
@@ -12,7 +13,7 @@ class ParseError : public std::exception {
 };
 
 class Parser {
-	std::vector<Token>* tokens;
+	std::queue<Token>* tokens;
 
 	void error();
 	bool accept(Token_type token);
@@ -32,7 +33,7 @@ class Parser {
 	Token* parameter();
 
 public:
-	Parser(std::vector<Token>*);
+	Parser(std::queue<Token>*);
 
 	AST* parse_tokens();
 };

@@ -35,75 +35,112 @@ bool read_string(std::string* input, std::string value, std::string* output) {
 	}
 }
 
-std::vector<Token>* Scanner::lex_file(std::string str) {
-	int line = 1;
-	auto token_vec = new std::vector<Token>;
+// TO WHOM IT MAY CONCERN
+// the following 3 code snippets may make little sense to you
+// a trained eye will note, however, that this is only because they are "low complexity"
+// my personal favorite, the "function in halves" has a cyclomatic complexity of 1
+// what a triumph! THIS is what maintanable code looks like!!!!!!
+//
+// In all seriousness though, the main loop of a lexer can be expected to be long
+// and have a lot of if/elses. This does not equate with complexity, as a human
+// can easily understand that verbosity and simplicity are not mutually exclusive.
 
-	while (str.length() != 0) {
+bool read_identifier(std::string* input, std::string* output, Token_type* type) {
+	if (isalpha(input->at(0))) {
+		size_t pos = input->find_first_not_of(ALPHA_NUMERIC);
+		*output = input->substr(0, pos);
+		input->erase(0, pos);
+
+		if (*output == "Schemes") *type = SCHEMES;
+		else if (*output == "Facts") *type = FACTS;
+		else if (*output == "Rules") *type = RULES;
+		else if (*output == "Queries") *type = QUERIES;
+		else *type = ID;
+
+		return true;
+	} else {
+		return false;
+	}
+}
+
+// read_punctuation is down to a complexity of 1! It must be so maintainable!
+#define FIRST_HALF\
+	if (read_string(input, ",", output)) {\
+		*type = COMMA;\
+	} else if (read_string(input, ".", output)) {\
+		*type = PERIOD;\
+	} else if (read_string(input, "?", output)) {\
+		*type = Q_MARK;\
+	} else if (read_string(input, "(", output)) {\
+		*type = LEFT_PAREN;\
+	} else
+#define SECOND_HALF\
+	if (read_string(input, ")", output)) {\
+		*type = RIGHT_PAREN;\
+	} else if (read_string(input, ":-", output)) {\
+		*type = COLON_DASH;\
+	} else if (read_string(input, ":", output)) {\
+		*type = COLON;\
+	} else if (read_string(input, ".", output)) {\
+		*type = PERIOD;\
+	} else {\
+		return false;\
+	}
+bool read_punctuation(std::string* input, std::string* output, Token_type* type) {
+	FIRST_HALF
+	SECOND_HALF
+
+	return true;
+}
+
+#define SKIP_NEWLINES if (read_string(&str, "\n", &output)) { line++; continue; }
+
+#define SKIP_WHITESPACE if ( read_string(&str, "\t", &output) || read_string(&str, " ", &output)) continue;
+
+// it's actually about ethics in game journalism!
+#define MAIN_LOOP while (str.length() != 0)
+
+int Scanner::lex_file(std::string str, std::queue<Token>* queue) {
+	int line = 1;
+
+	MAIN_LOOP {
 		std::string output;
 		Token_type type;
-		if (read_string(&str, "\n", &output)) {
-			line++;
-			continue; // newlines aren't a token
-		} else if ( // non-newline whitespace
-			read_string(&str, "\t", &output) ||
-			read_string(&str, " ", &output)
-		) {
-			continue;
-		} else if (read_string(&str, "#", &output)) { // comments
+
+		SKIP_NEWLINES;
+
+		SKIP_WHITESPACE;
+
+		if (read_string(&str, "#", &output)) { // comments
 			// TODO: make sure this handles EOF
 			read_until(&str, "\n", &output);
+			line++;
 			continue;
-		} else if (read_string(&str, ",", &output)) {
-			type = COMMA;
-		} else if (read_string(&str, ".", &output)) {
-			type = PERIOD;
-		} else if (read_string(&str, "?", &output)) {
-			type = Q_MARK;
-		} else if (read_string(&str, "(", &output)) {
-			type = LEFT_PAREN;
-		} else if (read_string(&str, ")", &output)) {
-			type = RIGHT_PAREN;
-		} else if (read_string(&str, ":-", &output)) {
-			type = COLON_DASH;
-		} else if (read_string(&str, ":", &output)) {
-			type = COLON;
-		} else if (read_string(&str, ".", &output)) {
-			type = PERIOD;
+		}
+
+		if (read_punctuation(&str, &output, &type)) { // punctuation
+			// do nothing, output and type have been populated
 		} else if (read_string(&str, "'", &output)) { // strings
 			type = STRING;
-			// TODO: Make sure string doesn't have newlines
+			
 			if (read_until(&str, "'", &output)) {
-				// string ended
+				// string ended, check for lines inside string
+
+				size_t pos = (&output)->find("\n");
+				if (pos != std::string::npos) return line;
 			} else {
 				// string did not end
-				std::cout << "Input Error on line " << line << std::endl;
-				return NULL;
+				return line;
 			}
-		} else if (isalpha(str.at(0))) { // identifiers
-			size_t pos = str.find_first_not_of(ALPHA_NUMERIC);
-			output = str.substr(0, pos);
-			str.erase(0, pos);
-
-			if (output == "Schemes") type = SCHEMES;
-			else if (output == "Facts") type = FACTS;
-			else if (output == "Rules") type = RULES;
-			else if (output == "Queries") type = QUERIES;
-			else type = ID;
+		} else if (read_identifier(&str, &output, &type)) {
+			// do nothing
 		} else {
-			std::cout << "Input Error on line " << line << std::endl;
-			return NULL;
+			return line;
 		}
 
 		Token token(type, output, line);
-		token_vec->push_back(token);
+		queue->push(token);
 	}
 
-	return token_vec;
+	return -1;
 }
-
-/*
-if (read_string(&str, "\n", &output)) {
-			line++;
-		}
-		*/

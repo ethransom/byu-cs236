@@ -10,3 +10,9 @@ main: *.cpp *.h
 
 test: inputs/* *.cpp *.h
 	./test.sh
+
+mem:
+	valgrind --leak-check=full ./main inputs/in12.txt
+
+comp:
+	pmccabe *.cpp *.h

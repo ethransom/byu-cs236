@@ -95,6 +95,8 @@ bool read_punctuation(std::string* input, std::string* output, Token_type* type)
 
 #define SKIP_NEWLINES if (read_string(&str, "\n", &output)) { line++; continue; }
 
+#define SKIP_WHITESPACE if ( read_string(&str, "\t", &output) || read_string(&str, " ", &output)) continue;
+
 // it's actually about ethics in game journalism!
 #define MAIN_LOOP while (str.length() != 0)
 
@@ -108,12 +110,7 @@ int Scanner::lex_file(std::string str, std::vector<Token>** token_vec) {
 
 		SKIP_NEWLINES;
 
-		if ( // non-newline whitespace
-			read_string(&str, "\t", &output) ||
-			read_string(&str, " ", &output)
-			) {
-			continue;
-		}
+		SKIP_WHITESPACE;
 
 		if (read_string(&str, "#", &output)) { // comments
 			// TODO: make sure this handles EOF
@@ -124,11 +121,14 @@ int Scanner::lex_file(std::string str, std::vector<Token>** token_vec) {
 
 		if (read_punctuation(&str, &output, &type)) { // punctuation
 			// do nothing, output and type have been populated
-		} else if (read_string(&str, "'", new std::string())) { // strings
+		} else if (read_string(&str, "'", &output)) { // strings
 			type = STRING;
-			// TODO: Make sure string doesn't have newlines
+			
 			if (read_until(&str, "'", &output)) {
-				// string ended
+				// string ended, check for lines inside string
+
+				size_t pos = (&output)->find("\n");
+				if (pos != std::string::npos) return line;
 			} else {
 				// string did not end
 				return line;

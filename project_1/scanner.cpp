@@ -93,18 +93,10 @@ bool read_punctuation(std::string* input, std::string* output, Token_type* type)
 	return true;
 }
 
+#define SKIP_NEWLINES if (read_string(&str, "\n", &output)) { line++; continue; }
+
 // it's actually about ethics in game journalism!
 #define MAIN_LOOP while (str.length() != 0)
-
-#define HANDLE_STRING_TOKEN\
-	type = STRING;\
-	// TODO: Make sure string doesn't have newlines\
-	if (read_until(&str, "'", &output)) {\
-		// string ended\
-	} else {\
-		// string did not end\
-		return line;\
-	}
 
 int Scanner::lex_file(std::string str, std::vector<Token>** token_vec) {
 	int line = 1;
@@ -114,22 +106,33 @@ int Scanner::lex_file(std::string str, std::vector<Token>** token_vec) {
 		std::string output;
 		Token_type type;
 
-		if (read_string(&str, "\n", &output)) {\
-			line++;\
-			continue; // newlines aren't a token\
-		} else if ( // non-newline whitespace\
-			read_string(&str, "\t", &output) ||\
-			read_string(&str, " ", &output)\
-			) {\
-			continue;\
-		} else if (read_string(&str, "#", &output)) { // comments
+		SKIP_NEWLINES;
+
+		if ( // non-newline whitespace
+			read_string(&str, "\t", &output) ||
+			read_string(&str, " ", &output)
+			) {
+			continue;
+		}
+
+		if (read_string(&str, "#", &output)) { // comments
 			// TODO: make sure this handles EOF
 			read_until(&str, "\n", &output);
+			line++;
 			continue;
-		} else if (read_punctuation(&str, &output, &type)) { // punctuation
+		}
+
+		if (read_punctuation(&str, &output, &type)) { // punctuation
 			// do nothing, output and type have been populated
-		} else if (read_string(&str, "'", &output)) { // strings
-			HANDLE_STRING_TOKEN
+		} else if (read_string(&str, "'", new std::string())) { // strings
+			type = STRING;
+			// TODO: Make sure string doesn't have newlines
+			if (read_until(&str, "'", &output)) {
+				// string ended
+			} else {
+				// string did not end
+				return line;
+			}
 		} else if (read_identifier(&str, &output, &type)) {
 			// do nothing
 		} else {

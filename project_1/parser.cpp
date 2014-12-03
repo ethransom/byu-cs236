@@ -182,18 +182,18 @@ Predicate* Parser::predicate() {
 	return p;
 }
 
-std::vector<Parameter*>* Parser::parameter_list() {
-	auto params = new std::vector<Parameter*>();
+std::vector<Parameter*> Parser::parameter_list() {
+	std::vector<Parameter*> params;
 
 	// accept at least one paramters, separated by commas
 	auto t = parameter();
 	require(t);
-	params->push_back(t);
+	params.push_back(t);
 
 	while (accept(COMMA)) {
 		auto t = parameter();
 		require(t);
-		params->push_back(t);
+		params.push_back(t);
 	}
 
 	return params;

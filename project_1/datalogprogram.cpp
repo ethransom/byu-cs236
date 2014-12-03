@@ -4,10 +4,10 @@ std::string Predicate::toString() {
 	std::ostringstream os;
 	os << identifier << "(";
 
-	for (int i = 0; i < param_list->size(); i++) {
-		os << (*param_list)[i]->toString();
+	for (int i = 0; i < param_list.size(); i++) {
+		os << param_list[i]->toString();
 
-		if ((i + 1) != param_list->size()) {
+		if ((i + 1) != param_list.size()) {
 			// last iteration
 			os << ",";
 		}
@@ -19,7 +19,7 @@ std::string Predicate::toString() {
 }
 
 void Predicate::determineDomain(std::set<std::string>* domain) {
-	for (auto param : *param_list) {
+	for (auto param : param_list) {
 		param->determineDomain(domain);
 	}
 }

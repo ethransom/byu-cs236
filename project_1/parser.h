@@ -6,7 +6,7 @@
 #include <exception>
 
 #include "token.h"
-#include "ast.h"
+#include "datalogprogram.h"
 
 class ParseError : public std::exception {
 	const char* what() const throw();
@@ -19,7 +19,7 @@ class Parser {
 	bool accept(Token_type token);
 	bool accept(Token_type token, std::string* dest);
 
-	AST* program();
+	DatalogProgram* program();
 	std::vector<Predicate*> scheme_list();
 	std::vector<Predicate*> fact_list();
 	Predicate* fact();
@@ -29,11 +29,11 @@ class Parser {
 	Predicate* query();
 	std::vector<Predicate*> predicate_list();
 	Predicate* predicate();
-	std::vector<Token*> parameter_list();
-	Token* parameter();
+	std::vector<Parameter*>* parameter_list();
+	Parameter* parameter();
 
 public:
 	Parser(std::queue<Token>*);
 
-	AST* parse_tokens();
+	DatalogProgram* parse_tokens();
 };

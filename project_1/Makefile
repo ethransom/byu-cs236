@@ -12,7 +12,7 @@ test: inputs/* *.cpp *.h
 	./test.sh
 
 mem:
-	valgrind --leak-check=full ./main inputs/in12.txt
+	valgrind --leak-check=full ./main proj_2_tests/in21.txt -
 
 comp:
 	pmccabe *.cpp *.h

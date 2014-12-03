@@ -10,6 +10,8 @@ const char* ParseError::what() const throw() {
 extern std::string Token_type_human_readable[];
 
 bool Parser::accept(Token_type type) {
+	if (tokens->size() < 1) return false;
+
 	Token token = tokens->front();
 	// std::cout << "checking " << Token_type_human_readable[token.type]
 		// << " with " << Token_type_human_readable[type] << std::endl;
@@ -22,9 +24,11 @@ bool Parser::accept(Token_type type) {
 }
 
 bool Parser::accept(Token_type type, std::string* dest) {
+	if (tokens->size() < 1) return false;
+
 	Token token = tokens->front();
-	std::cout << "checking " << Token_type_human_readable[token.type]
-		<< " with " << Token_type_human_readable[type] << std::endl;
+	// std::cout << "checking " << Token_type_human_readable[token.type]
+		// << " with " << Token_type_human_readable[type] << std::endl;
 	if (token.type == type) {
 		tokens->pop();
 		*dest = token.str;
@@ -40,25 +44,29 @@ bool Parser::accept(Token_type type, std::string* dest) {
 // very bad if this isn't there
 #define require(val) if (!val) throw ParseError();
 
-AST* Parser::program() {
-	AST* ast = new AST();
+DatalogProgram* Parser::program() {
+	DatalogProgram* prog = new DatalogProgram();
 	require(accept(SCHEMES));
 	require(accept(COLON));
-	ast->scheme_list = scheme_list();
+	prog->scheme_list = scheme_list();
 
 	require(accept(FACTS));
 	require(accept(COLON));
-	ast->fact_list = fact_list();
+	prog->fact_list = fact_list();
 
 	require(accept(RULES));
 	require(accept(COLON));
-	ast->rule_list = rule_list();
+	prog->rule_list = rule_list();
 
 	require(accept(QUERIES));
 	require(accept(COLON));
-	ast->query_list = query_list();
+	prog->query_list = query_list();
 
-	return ast;
+	if (tokens->size() != 0) {
+		throw ParseError();
+	}
+
+	return prog;
 }
 
 std::vector<Predicate*> Parser::scheme_list() {
@@ -116,8 +124,7 @@ Rule* Parser::rule() {
 	require(accept(PERIOD));
 
 	Rule* rule = new Rule();
-	rule->predicate = *p;
-	delete p;
+	rule->predicate = p;
 	rule->predicate_list = list;
 
 	return rule;
@@ -166,37 +173,37 @@ Predicate* Parser::predicate() {
 	auto p = new Predicate();
 	expect(accept(ID, &p->identifier));
 	require(accept(LEFT_PAREN));
+
 	auto list = parameter_list();
-	// require(list);
 	p->param_list = list;
+
 	require(accept(RIGHT_PAREN));
 
 	return p;
 }
 
-std::vector<Token*> Parser::parameter_list() {
-	std::vector<Token*> tokens;
+std::vector<Parameter*>* Parser::parameter_list() {
+	auto params = new std::vector<Parameter*>();
 
 	// accept at least one paramters, separated by commas
 	auto t = parameter();
 	require(t);
-	tokens.push_back(t);
+	params->push_back(t);
 
 	while (accept(COMMA)) {
 		auto t = parameter();
 		require(t);
-		tokens.push_back(t);
+		params->push_back(t);
 	}
 
-	return tokens;
+	return params;
 }
 
-Token* Parser::parameter() {
+Parameter* Parser::parameter() {
 	Token token = tokens->front();
 	if (token.type == ID || token.type == STRING) {
 		tokens->pop();
-		auto t = new Token();
-		*t = token;
+		auto t = new Parameter(&token);
 		return t;
 	} else {
 		return NULL;
@@ -209,7 +216,10 @@ Parser::Parser(std::queue<Token>* t) {
 	tokens = t;
 }
 
-AST* Parser::parse_tokens() {
-	AST* ast = program();
-	return ast;
+DatalogProgram* Parser::parse_tokens() {
+	DatalogProgram* prog = program();
+
+	prog->determineDomain();
+
+	return prog;
 }

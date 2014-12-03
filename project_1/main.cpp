@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <queue>
+#include <cstring>
 
 #include "scanner.h"
 #include "token.h"
@@ -22,11 +23,23 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
+	std::streambuf * buf;
+	std::ofstream of;
+
+	if (!strcmp(argv[2], "-")) {
+		buf = std::cout.rdbuf();
+	} else {
+		of.open(argv[2]);
+		buf = of.rdbuf();
+	}
+
+	std::ostream output(buf);
+
 	std::string filename(argv[1]);
 	std::ifstream input(filename);
 	std::string str = slurp(input);
 
-	std::ofstream output(argv[2]);
+	// std::ofstream output(argv[2]);
 
 	std::queue<Token> tokens;
 
@@ -34,6 +47,7 @@ int main(int argc, char** argv) {
 
 	if (lex_line_of_error > -1) {
 		output << "Error during scanning on line " << lex_line_of_error << std::endl;
+		return 1;
 	}
 
 	// for (std::vector<Token>::iterator i = tokens->begin(); i != tokens->end(); ++i) {
@@ -42,17 +56,17 @@ int main(int argc, char** argv) {
 
 	Parser parser(&tokens);
 
-	AST* ast;
+	DatalogProgram* prog;
 	try {
-		ast = parser.parse_tokens();
+		prog = parser.parse_tokens();
 	} catch (ParseError e) {
-		std::cout << "Failure!" << std::endl << "  " << tokens.front() << std::endl;
+		output << "Failure!" << std::endl << "  " << tokens.front() << std::endl;
 		return 0;
 	}
 
-	std::cout << "Success!" << std::endl << *ast << std::endl;
+	output << "Success!" << std::endl << prog->toString();
 
-	delete ast;
+	delete prog;
 
 	return 0;
 }

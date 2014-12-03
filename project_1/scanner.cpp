@@ -3,7 +3,7 @@
 
 #include "scanner.h"
 
-static const std::string ALPHA_NUMERIC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+static const std::string ALPHA_NUMERIC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
 bool read_until(std::string* input, std::string delimiter, std::string* output) {
 	size_t pos = 0;
@@ -122,7 +122,7 @@ int Scanner::lex_file(std::string str, std::queue<Token>* queue) {
 			// do nothing, output and type have been populated
 		} else if (read_string(&str, "'", &output)) { // strings
 			type = STRING;
-			
+
 			if (read_until(&str, "'", &output)) {
 				// string ended, check for lines inside string
 

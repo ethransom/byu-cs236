@@ -29,7 +29,7 @@ class Parser {
 	Predicate* query();
 	std::vector<Predicate*> predicate_list();
 	Predicate* predicate();
-	std::vector<Parameter*>* parameter_list();
+	std::vector<Parameter*> parameter_list();
 	Parameter* parameter();
 
 public:

@@ -24,10 +24,10 @@ public:
 class Predicate {
 public:
 	std::string identifier;
-	std::vector<Parameter*>* param_list;
+	std::vector<Parameter*> param_list;
 
 	~Predicate() {
-		for (auto param : *param_list)
+		for (auto param : param_list)
 			delete param;
 	}
 

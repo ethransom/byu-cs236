@@ -61,11 +61,12 @@ int main(int argc, char** argv) {
 		prog = parser.parse_tokens();
 	} catch (ParseError e) {
 		output << "Failure!" << std::endl << "  " << tokens.front() << std::endl;
-		return 0;
+		goto end;
 	}
 
 	output << "Success!" << std::endl << prog->toString();
 
+end:
 	delete prog;
 
 	return 0;

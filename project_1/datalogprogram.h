@@ -44,8 +44,8 @@ public:
 	~Rule() {
 		delete predicate;
 
-		for (int i = 0; i < predicate_list.size(); i++)
-			delete predicate_list[i];
+		for (auto p : predicate_list)
+			delete p;
 	}
 
 	std::string toString();

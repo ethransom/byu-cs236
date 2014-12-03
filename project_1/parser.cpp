@@ -77,7 +77,7 @@ std::vector<Predicate*> Parser::scheme_list() {
 	require(p);
 	list.push_back(p);
 
-	while (p = predicate()) {
+	while ((p = predicate())) {
 		list.push_back(p);
 	}
 
@@ -89,7 +89,7 @@ std::vector<Predicate*> Parser::fact_list() {
 	Predicate* p;
 
 	// possibly accept a fact
-	while(p = fact()) {
+	while((p = fact())) {
 		list.push_back(p);
 	}
 
@@ -108,7 +108,7 @@ std::vector<Rule*> Parser::rule_list() {
 	std::vector<Rule*> list;
 	Rule* r;
 
-	while(r = rule()) {
+	while((r = rule())) {
 		list.push_back(r);
 	}
 
@@ -138,7 +138,7 @@ std::vector<Predicate*> Parser::query_list() {
 	require(p);
 	list.push_back(p);
 
-	while (p = query()) {
+	while ((p = query())) {
 		list.push_back(p);
 	}
 
@@ -170,8 +170,15 @@ std::vector<Predicate*> Parser::predicate_list() {
 }
 
 Predicate* Parser::predicate() {
+	std::string identifier;
+
+	expect(accept(ID, &identifier));
+	// NOTE: used to allocate Predicate at beginning of function
+	// but if expect failed, the function would return and the Predicate would leak
+	// DON'T ALLOCATE MEMORY UNTIL YOU'VE COMMITED TO A PARSER PATH
 	auto p = new Predicate();
-	expect(accept(ID, &p->identifier));
+	p->identifier = identifier;
+
 	require(accept(LEFT_PAREN));
 
 	auto list = parameter_list();

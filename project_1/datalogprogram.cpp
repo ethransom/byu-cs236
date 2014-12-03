@@ -4,10 +4,11 @@ std::string Predicate::toString() {
 	std::ostringstream os;
 	os << identifier << "(";
 
-	for (int i = 0; i < param_list.size(); i++) {
-		os << param_list[i]->toString();
+	auto last = param_list.back();
+	for (auto param : param_list) {
+		os << param->toString();
 
-		if ((i + 1) != param_list.size()) {
+		if (param != last) {
 			// last iteration
 			os << ",";
 		}
@@ -28,10 +29,11 @@ std::string Rule::toString() {
 	std::ostringstream os;
 	os << predicate->toString() << " :- ";
 
-	for (int i = 0; i < predicate_list.size(); i++) {
-		os << predicate_list[i]->toString();
+	auto last = predicate_list.back();
+	for (auto predicate : predicate_list) {
+		os << predicate->toString();
 
-		if ((i + 1) != predicate_list.size()) {
+		if (last != predicate) {
 			// last iteration
 			os << ",";
 		}
@@ -87,40 +89,40 @@ DatalogProgram::~DatalogProgram() {
 }
 
 void DatalogProgram::determineDomain() {
-	for (int i = 0; i < scheme_list.size(); i++)
-		scheme_list[i]->determineDomain(&domain);
+	for (auto s : scheme_list)
+		s->determineDomain(&domain);
 
-	for (int i = 0; i < fact_list.size(); i++)
-		fact_list[i]->determineDomain(&domain);
+	for (auto f : fact_list)
+		f->determineDomain(&domain);
 
-	for (int i = 0; i < rule_list.size(); i++)
-		rule_list[i]->determineDomain(&domain);
+	for (auto r : rule_list)
+		r->determineDomain(&domain);
 
-	for (int i = 0; i < query_list.size(); i++)
-		query_list[i]->determineDomain(&domain);
+	for (auto q : query_list)
+		q->determineDomain(&domain);
 }
 
 std::string DatalogProgram::toString() {
 	std::ostringstream os;
 
 	os << "Schemes(" << scheme_list.size() << "):" << std::endl;
-	for (int i = 0; i < scheme_list.size(); i++) {
-		os << "  " << scheme_list[i]->toString() << std::endl;
+	for (auto s : scheme_list) {
+		os << "  " << s->toString() << std::endl;
 	}
 
 	os << "Facts(" << fact_list.size() << "):" << std::endl;
-	for (int i = 0; i < fact_list.size(); i++) {
-		os << "  " << fact_list[i]->toString() << std::endl;
+	for (auto f : fact_list) {
+		os << "  " << f->toString() << std::endl;
 	}
 
 	os << "Rules(" << rule_list.size() << "):" << std::endl;
-	for (int i = 0; i < rule_list.size(); i++) {
-		os << "  " << rule_list[i]->toString() << std::endl;
+	for (auto r : rule_list) {
+		os << "  " << r->toString() << std::endl;
 	}
 
 	os << "Queries(" << query_list.size() << "):" << std::endl;
-	for (int i = 0; i < query_list.size(); i++) {
-		os << "  " << query_list[i]->toString() << std::endl;
+	for (auto q : query_list) {
+		os << "  " << q->toString() << std::endl;
 	}
 
 	os << "Domain(" << domain.size() << "):" << std::endl;

@@ -6,7 +6,7 @@ pkg: main
 	zip project1.zip *.h *.cpp
 
 main: *.cpp *.h
-	g++ *.cpp -o main -std=c++14 -g
+	g++ -Wall *.cpp -o main -std=c++14 -g
 
 test: inputs/* *.cpp *.h
 	./test.sh

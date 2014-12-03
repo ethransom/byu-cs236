@@ -4,7 +4,7 @@ run_suite() {
 	for file in "$1"/*.txt; do
 		expected="$1/$(basename $file).out"
 		if test -e $expected; then
-			if (./main $file | diff - $expected); then
+			if (./main $file $flags | diff - $expected); then
 				echo "[SUCCESS] $file"
 			else
 				echo "[FAILURE] $file did not match $expected"
@@ -16,6 +16,6 @@ run_suite() {
 	done
 }
 
-run_suite inputs/project_1
+run_suite inputs/project_1 '--lex'
 
 echo "All Tests Succeeded!"

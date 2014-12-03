@@ -1,10 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <queue>
 #include <cstring>
 
-#include "lexer.h"
 #include "token.h"
+#include "lexer.h"
+#include "parser.h"
 
 std::string slurp(std::ifstream& in) {
     std::stringstream sstr;
@@ -28,11 +30,22 @@ int main(int argc, char** argv) {
 	Lexer lexer(&str);
 	auto tokens = lexer.lex_file();
 
-	for (auto t : tokens) {
-		std::cout << t << std::endl;
+	// for (auto t : tokens) {
+	// 	std::cout << t << std::endl;
+	// }
+
+	// std::cout << "Total Tokens = " << tokens.size() << std::endl;
+
+	Parser parser(&tokens);
+
+	DatalogProgram prog;
+	Token offending = parser.parse_tokens(prog);
+	if (offending == NULL) {
+		std::cout << "Failure!" << std::endl << "  " << offending << std::endl;
+		return 0;
 	}
 
-	std::cout << "Total Tokens = " << tokens.size() << std::endl;
+	std::cout << "Success!" << std::endl << prog;
 
 	return 0;
 }

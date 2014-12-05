@@ -4,6 +4,7 @@
 #include <queue>
 #include <vector>
 #include <exception>
+#include <memory>
 
 #include "token.h"
 #include "datalogprogram.h"
@@ -19,21 +20,21 @@ class Parser {
 	bool accept(Token_type token);
 	bool accept(Token_type token, std::string* dest);
 
-	DatalogProgram* program();
-	std::vector<Predicate*> scheme_list();
-	std::vector<Predicate*> fact_list();
-	Predicate* fact();
+	void program(DatalogProgram* prog);
+	std::vector<std::unique_ptr<Predicate>> scheme_list();
+	std::vector<std::unique_ptr<Predicate>> fact_list();
+	std::unique_ptr<Predicate> fact();
 	std::vector<Rule*> rule_list();
 	Rule* rule();
-	std::vector<Predicate*> query_list();
-	Predicate* query();
-	std::vector<Predicate*> predicate_list();
-	Predicate* predicate();
+	std::vector<std::unique_ptr<Predicate>> query_list();
+	std::unique_ptr<Predicate> query();
+	std::vector<std::unique_ptr<Predicate>> predicate_list();
+	std::unique_ptr<Predicate> predicate();
 	std::vector<Parameter*> parameter_list();
 	Parameter* parameter();
 
 public:
 	Parser(std::queue<Token>*);
 
-	DatalogProgram* parse_tokens();
+	void parse_tokens(DatalogProgram* prog);
 };

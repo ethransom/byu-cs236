@@ -3,6 +3,7 @@
 #include <vector>
 #include <set>
 #include <sstream>
+#include <memory>
 
 #include "token.h"
 
@@ -57,10 +58,10 @@ public:
 
 class DatalogProgram {
 public:
-	std::vector<Predicate*> scheme_list;
-	std::vector<Predicate*> fact_list;
-	std::vector<Rule*> rule_list;
-	std::vector<Predicate*> query_list;
+	std::vector<std::unique_ptr<Predicate>> scheme_list;
+	std::vector<std::unique_ptr<Predicate>> fact_list;
+	std::vector<std::unique_ptr<Rule>> rule_list;
+	std::vector<std::unique_ptr<Predicate>> query_list;
 
 	std::set<std::string> domain;
 

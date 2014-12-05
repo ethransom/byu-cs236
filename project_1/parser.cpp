@@ -44,8 +44,7 @@ bool Parser::accept(Token_type type, std::string* dest) {
 // very bad if this isn't there
 #define require(val) if (!val) throw ParseError();
 
-DatalogProgram* Parser::program() {
-	DatalogProgram* prog = new DatalogProgram();
+void Parser::program(DatalogProgram* prog) {
 	require(accept(SCHEMES));
 	require(accept(COLON));
 	prog->scheme_list = scheme_list();
@@ -65,15 +64,13 @@ DatalogProgram* Parser::program() {
 	if (tokens->size() != 0) {
 		throw ParseError();
 	}
-
-	return prog;
 }
 
-std::vector<Predicate*> Parser::scheme_list() {
-	std::vector<Predicate*> list;
+std::vector<std::unique_ptr<Predicate>> Parser::scheme_list() {
+	std::vector<std::unique_ptr<Predicate>> list;
 
 	// accept at least one predicate
-	Predicate* p = predicate();
+	auto p = predicate();
 	require(p);
 	list.push_back(p);
 
@@ -84,9 +81,9 @@ std::vector<Predicate*> Parser::scheme_list() {
 	return list;
 }
 
-std::vector<Predicate*> Parser::fact_list() {
-	std::vector<Predicate*> list;
-	Predicate* p;
+std::vector<std::unique_ptr<Predicate>> Parser::fact_list() {
+	std::vector<std::unique_ptr<Predicate>> list;
+	std::unique_ptr<Predicate> p;
 
 	// possibly accept a fact
 	while((p = fact())) {
@@ -96,7 +93,7 @@ std::vector<Predicate*> Parser::fact_list() {
 	return list;
 }
 
-Predicate* Parser::fact() {
+std::unique_ptr<Predicate> Parser::fact() {
 	auto p = predicate();
 	expect(p);
 	require(accept(PERIOD));
@@ -130,9 +127,9 @@ Rule* Parser::rule() {
 	return rule;
 }
 
-std::vector<Predicate*> Parser::query_list() {
-	std::vector<Predicate*> list;
-	Predicate* p;
+std::vector<std::unique_ptr<Predicate>> Parser::query_list() {
+	std::vector<std::unique_ptr<Predicate>> list;
+	std::unique_ptr<Predicate> p;
 
 	p = query();
 	require(p);
@@ -145,7 +142,7 @@ std::vector<Predicate*> Parser::query_list() {
 	return list;
 }
 
-Predicate* Parser::query() {
+std::unique_ptr<Predicate> Parser::query() {
 	auto p = predicate();
 	expect(p);
 	require(accept(Q_MARK));
@@ -153,8 +150,8 @@ Predicate* Parser::query() {
 	return p;
 }
 
-std::vector<Predicate*> Parser::predicate_list() {
-	std::vector<Predicate*> list;
+std::vector<std::unique_ptr<Predicate>> Parser::predicate_list() {
+	std::vector<std::unique_ptr<Predicate>> list;
 
 	auto p = predicate();
 	require(p);
@@ -169,20 +166,14 @@ std::vector<Predicate*> Parser::predicate_list() {
 	return list;
 }
 
-Predicate* Parser::predicate() {
-	std::string identifier;
+std::unique_ptr<Predicate> Parser::predicate() {
+	std::unique_ptr<Predicate> predicate(new Predicate());
 
-	expect(accept(ID, &identifier));
-	// NOTE: used to allocate Predicate at beginning of function
-	// but if expect failed, the function would return and the Predicate would leak
-	// DON'T ALLOCATE MEMORY UNTIL YOU'VE COMMITED TO A PARSER PATH
-	auto p = new Predicate();
-	p->identifier = identifier;
+	expect(accept(ID, &predicate->identifier));
 
 	require(accept(LEFT_PAREN));
 
-	auto list = parameter_list();
-	p->param_list = list;
+	p->param_list = parameter_list();
 
 	require(accept(RIGHT_PAREN));
 
@@ -223,10 +214,8 @@ Parser::Parser(std::queue<Token>* t) {
 	tokens = t;
 }
 
-DatalogProgram* Parser::parse_tokens() {
-	DatalogProgram* prog = program();
+void Parser::parse_tokens(DatalogProgram* prog) {
+	program(prog);
 
 	prog->determineDomain();
-
-	return prog;
 }

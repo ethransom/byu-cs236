@@ -66,27 +66,27 @@ void Parameter::determineDomain(std::set<std::string>* domain) {
 	}
 }
 
-DatalogProgram::~DatalogProgram() {
-	for (auto s : scheme_list) {
-		delete s;
-	}
-	scheme_list.clear();
+// DatalogProgram::~DatalogProgram() {
+// 	for (auto s : scheme_list) {
+// 		delete s;
+// 	}
+// 	scheme_list.clear();
 
-	for (auto f : fact_list) {
-		delete f;
-	}
-	fact_list.clear();
+// 	for (auto f : fact_list) {
+// 		delete f;
+// 	}
+// 	fact_list.clear();
 
-	for (auto r : rule_list) {
-		delete r;
-	}
-	rule_list.clear();
+// 	for (auto r : rule_list) {
+// 		delete r;
+// 	}
+// 	rule_list.clear();
 
-	for (auto q : query_list) {
-		delete q;
-	}
-	query_list.clear();
-}
+// 	for (auto q : query_list) {
+// 		delete q;
+// 	}
+// 	query_list.clear();
+// }
 
 void DatalogProgram::determineDomain() {
 	for (auto s : scheme_list)

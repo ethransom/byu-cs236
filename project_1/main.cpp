@@ -65,7 +65,9 @@ int main(int argc, char** argv) {
     return 0;
 	}
 
-	output << "Success!" << std::endl << prog.toString();
+	// output << "Success!" << std::endl << prog.toString();
+
+	prog->evaluate(&output);
 
 	return 0;
 }

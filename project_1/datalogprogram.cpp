@@ -1,4 +1,5 @@
 #include "datalogprogram.h"
+#include "database.h"
 
 std::string Predicate::toString() {
 	std::ostringstream os;
@@ -131,4 +132,34 @@ std::string DatalogProgram::toString() {
 	}
 
 	return os.str();
+}
+
+void DatalogProgram::evaluate(std::ostream* output) {
+	Database database;
+
+	*output << "Scheme Evaluation" << std::endl << std::endl;
+
+	for (auto scheme : scheme_list) {
+		// add an empty relation
+		database.createRelation(scheme);
+	}
+
+	// ===============================================
+
+	for (auto fact : fact_list) {
+		// add a tuple to a relation
+		database.insert(fact);
+	}
+
+	*output << "Fact Evaluation" << std::endl << std::endl;
+
+	database.print(output);
+
+	// ===============================================
+
+	for (auto query : query_list) {
+		// use operations to eval query
+		// output as we go
+		database.query(output, query);	
+	}
 }

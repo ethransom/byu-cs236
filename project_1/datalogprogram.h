@@ -70,4 +70,6 @@ public:
 	void determineDomain();
 
 	std::string toString();
+
+	void evaluate(std::ostream* output);
 };

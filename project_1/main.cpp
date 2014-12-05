@@ -56,18 +56,16 @@ int main(int argc, char** argv) {
 
 	Parser parser(&tokens);
 
-	DatalogProgram* prog;
+	DatalogProgram prog;
 	try {
 		prog = parser.parse_tokens();
 	} catch (ParseError e) {
 		output << "Failure!" << std::endl << "  " << tokens.front() << std::endl;
-		goto end;
+
+    return 0;
 	}
 
-	output << "Success!" << std::endl << prog->toString();
-
-end:
-	delete prog;
+	output << "Success!" << std::endl << prog.toString();
 
 	return 0;
 }

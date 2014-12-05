@@ -13,8 +13,6 @@ bool Parser::accept(Token_type type) {
 	if (tokens->size() < 1) return false;
 
 	Token token = tokens->front();
-	// std::cout << "checking " << Token_type_human_readable[token.type]
-		// << " with " << Token_type_human_readable[type] << std::endl;
 	if (token.type == type) {
 		tokens->pop();
 		return true;
@@ -27,8 +25,6 @@ bool Parser::accept(Token_type type, std::string* dest) {
 	if (tokens->size() < 1) return false;
 
 	Token token = tokens->front();
-	// std::cout << "checking " << Token_type_human_readable[token.type]
-		// << " with " << Token_type_human_readable[type] << std::endl;
 	if (token.type == type) {
 		tokens->pop();
 		*dest = token.str;
@@ -44,23 +40,24 @@ bool Parser::accept(Token_type type, std::string* dest) {
 // very bad if this isn't there
 #define require(val) if (!val) throw ParseError();
 
-DatalogProgram* Parser::program() {
-	DatalogProgram* prog = new DatalogProgram();
+DatalogProgram Parser::program() {
+	DatalogProgram prog;
+
 	require(accept(SCHEMES));
 	require(accept(COLON));
-	prog->scheme_list = scheme_list();
+  scheme_list(&prog.scheme_list);
 
 	require(accept(FACTS));
 	require(accept(COLON));
-	prog->fact_list = fact_list();
+	fact_list(&prog.fact_list);
 
 	require(accept(RULES));
 	require(accept(COLON));
-	prog->rule_list = rule_list();
+	rule_list(&prog.rule_list);
 
 	require(accept(QUERIES));
 	require(accept(COLON));
-	prog->query_list = query_list();
+	prog.query_list = query_list();
 
 	if (tokens->size() != 0) {
 		throw ParseError();
@@ -69,149 +66,128 @@ DatalogProgram* Parser::program() {
 	return prog;
 }
 
-std::vector<Predicate*> Parser::scheme_list() {
-	std::vector<Predicate*> list;
-
+void Parser::scheme_list(std::vector<Predicate>* list) {
 	// accept at least one predicate
-	Predicate* p = predicate();
-	require(p);
-	list.push_back(p);
+  Predicate p;
+	require(predicate(&p));
+	list->push_back(p);
+  p.param_list.clear();
 
-	while ((p = predicate())) {
-		list.push_back(p);
+
+	while (predicate(&p)) {
+		list->push_back(p);
+    p.param_list.clear();
 	}
-
-	return list;
 }
 
-std::vector<Predicate*> Parser::fact_list() {
-	std::vector<Predicate*> list;
-	Predicate* p;
+void Parser::fact_list(std::vector<Predicate>* list) {
+	Predicate p;
 
 	// possibly accept a fact
-	while((p = fact())) {
-		list.push_back(p);
+	while(fact(&p)) {
+		list->push_back(p);
+    p.param_list.clear();
 	}
-
-	return list;
 }
 
-Predicate* Parser::fact() {
-	auto p = predicate();
-	expect(p);
+bool Parser::fact(Predicate* p) {
+	expect(predicate(p));
 	require(accept(PERIOD));
 
-	return p;
+  return true;
 }
 
-std::vector<Rule*> Parser::rule_list() {
-	std::vector<Rule*> list;
-	Rule* r;
+void Parser::rule_list(std::vector<Rule>* list) {
+	Rule r;
 
-	while((r = rule())) {
-		list.push_back(r);
+	while(rule(&r)) {
+		list->push_back(r);
 	}
-
-	return list;
 }
 
-Rule* Parser::rule() {
-	auto p = predicate();
-	expect(p);
+bool Parser::rule(Rule* rule) {
+	Predicate p;
+	expect(predicate(&p));
 	require(accept(COLON_DASH));
 	auto list = predicate_list();
-	// require(list);
+
 	require(accept(PERIOD));
 
-	Rule* rule = new Rule();
 	rule->predicate = p;
 	rule->predicate_list = list;
 
-	return rule;
+	return true;
 }
 
-std::vector<Predicate*> Parser::query_list() {
-	std::vector<Predicate*> list;
-	Predicate* p;
+std::vector<Predicate> Parser::query_list() {
+	std::vector<Predicate> list;
+	Predicate p;
 
-	p = query();
-	require(p);
+	require(query(&p));
 	list.push_back(p);
 
-	while ((p = query())) {
+	while (query(&p)) {
 		list.push_back(p);
 	}
 
 	return list;
 }
 
-Predicate* Parser::query() {
-	auto p = predicate();
-	expect(p);
+bool Parser::query(Predicate* p) {
+	expect(predicate(p));
 	require(accept(Q_MARK));
 
-	return p;
+	return true;
 }
 
-std::vector<Predicate*> Parser::predicate_list() {
-	std::vector<Predicate*> list;
+std::vector<Predicate> Parser::predicate_list() {
+	std::vector<Predicate> list;
 
-	auto p = predicate();
-	require(p);
+  Predicate p;
+	require(predicate(&p));
 	list.push_back(p);
 
 	while(accept(COMMA)) {
-		auto p = predicate();
-		require(p);
-		list.push_back(p);
+    Predicate p;
+    require(predicate(&p));
+    list.push_back(p);
 	}
 
 	return list;
 }
 
-Predicate* Parser::predicate() {
-	std::string identifier;
-
-	expect(accept(ID, &identifier));
-	// NOTE: used to allocate Predicate at beginning of function
-	// but if expect failed, the function would return and the Predicate would leak
-	// DON'T ALLOCATE MEMORY UNTIL YOU'VE COMMITED TO A PARSER PATH
-	auto p = new Predicate();
-	p->identifier = identifier;
+bool Parser::predicate(Predicate* p) {
+	expect(accept(ID, &p->identifier));
 
 	require(accept(LEFT_PAREN));
 
-	auto list = parameter_list();
-	p->param_list = list;
+	parameter_list(&p->param_list);
 
 	require(accept(RIGHT_PAREN));
 
-	return p;
+	return true;
 }
 
-std::vector<Parameter*> Parser::parameter_list() {
-	std::vector<Parameter*> params;
-
+void Parser::parameter_list(std::vector<Parameter>* params) {
+  Parameter param;
 	// accept at least one paramters, separated by commas
-	auto t = parameter();
-	require(t);
-	params.push_back(t);
+	require(parameter(&param));
+	params->push_back(param);
 
 	while (accept(COMMA)) {
-		auto t = parameter();
-		require(t);
-		params.push_back(t);
+    Parameter param;
+    require(parameter(&param));
+		params->push_back(param);
 	}
-
-	return params;
 }
 
-Parameter* Parser::parameter() {
+bool Parser::parameter(Parameter* p) {
 	Token token = tokens->front();
 	if (token.type == ID || token.type == STRING) {
 		tokens->pop();
-		auto t = new Parameter(&token);
-		return t;
+    Parameter param(&token);
+		*p = param;
+    return 1;
 	} else {
 		return NULL;
 	}
@@ -223,10 +199,10 @@ Parser::Parser(std::queue<Token>* t) {
 	tokens = t;
 }
 
-DatalogProgram* Parser::parse_tokens() {
-	DatalogProgram* prog = program();
+DatalogProgram Parser::parse_tokens() {
+	auto prog = program();
 
-	prog->determineDomain();
+	prog.determineDomain();
 
 	return prog;
 }

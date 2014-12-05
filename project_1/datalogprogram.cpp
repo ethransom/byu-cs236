@@ -6,7 +6,7 @@ std::string Predicate::toString() {
 
 	auto last = param_list.back();
 	for (auto param : param_list) {
-		os << param->toString();
+		os << param.toString();
 
 		if (param != last) {
 			// last iteration
@@ -21,17 +21,17 @@ std::string Predicate::toString() {
 
 void Predicate::determineDomain(std::set<std::string>* domain) {
 	for (auto param : param_list) {
-		param->determineDomain(domain);
+		param.determineDomain(domain);
 	}
 }
 
 std::string Rule::toString() {
 	std::ostringstream os;
-	os << predicate->toString() << " :- ";
+	os << predicate.toString() << " :- ";
 
 	auto last = predicate_list.back();
 	for (auto predicate : predicate_list) {
-		os << predicate->toString();
+		os << predicate.toString();
 
 		if (last != predicate) {
 			// last iteration
@@ -43,8 +43,8 @@ std::string Rule::toString() {
 }
 
 void Rule::determineDomain(std::set<std::string>* domain) {
-	for (std::vector<Predicate*>::iterator i = predicate_list.begin(); i != predicate_list.end(); ++i) {
-		(*i)->determineDomain(domain);
+	for (auto p : predicate_list) {
+		p.determineDomain(domain);
 	}
 }
 
@@ -66,40 +66,18 @@ void Parameter::determineDomain(std::set<std::string>* domain) {
 	}
 }
 
-DatalogProgram::~DatalogProgram() {
-	for (auto s : scheme_list) {
-		delete s;
-	}
-	scheme_list.clear();
-
-	for (auto f : fact_list) {
-		delete f;
-	}
-	fact_list.clear();
-
-	for (auto r : rule_list) {
-		delete r;
-	}
-	rule_list.clear();
-
-	for (auto q : query_list) {
-		delete q;
-	}
-	query_list.clear();
-}
-
 void DatalogProgram::determineDomain() {
 	for (auto s : scheme_list)
-		s->determineDomain(&domain);
+		s.determineDomain(&domain);
 
 	for (auto f : fact_list)
-		f->determineDomain(&domain);
+		f.determineDomain(&domain);
 
 	for (auto r : rule_list)
-		r->determineDomain(&domain);
+		r.determineDomain(&domain);
 
 	for (auto q : query_list)
-		q->determineDomain(&domain);
+		q.determineDomain(&domain);
 }
 
 std::string DatalogProgram::toString() {
@@ -107,22 +85,22 @@ std::string DatalogProgram::toString() {
 
 	os << "Schemes(" << scheme_list.size() << "):" << std::endl;
 	for (auto s : scheme_list) {
-		os << "  " << s->toString() << std::endl;
+		os << "  " << s.toString() << std::endl;
 	}
 
 	os << "Facts(" << fact_list.size() << "):" << std::endl;
 	for (auto f : fact_list) {
-		os << "  " << f->toString() << std::endl;
+		os << "  " << f.toString() << std::endl;
 	}
 
 	os << "Rules(" << rule_list.size() << "):" << std::endl;
 	for (auto r : rule_list) {
-		os << "  " << r->toString() << std::endl;
+		os << "  " << r.toString() << std::endl;
 	}
 
 	os << "Queries(" << query_list.size() << "):" << std::endl;
 	for (auto q : query_list) {
-		os << "  " << q->toString() << std::endl;
+		os << "  " << q.toString() << std::endl;
 	}
 
 	os << "Domain(" << domain.size() << "):" << std::endl;

@@ -133,11 +133,17 @@ void DatalogProgram::evaluate(std::ostream* output) {
 
 	database.print(output);
 
+	*output << std::endl;
+
 	// ===============================================
+
+	*output << "Query Evaluation" << std::endl << std::endl;
 
 	for (auto query : query_list) {
 		// use operations to eval query
 		// output as we go
 		database.query(output, &query);
+
+		*output << std::endl;
 	}
 }

@@ -1,0 +1,15 @@
+
+
+Schemes:
+  bob(A)
+
+Facts:
+  bob('a').
+  bob('a').
+
+Rules:
+
+Queries:
+  bob(A)?
+
+

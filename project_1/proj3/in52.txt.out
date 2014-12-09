@@ -1,0 +1,116 @@
+Scheme Evaluation
+
+Fact Evaluation
+
+cdh
+  C='CS101' D='F' H='9PM'
+  C='EE200' D='M' H='10AM'
+  C='EE200' D='W' H='10AM'
+  C='PH100' D='Tu' H='11AM'
+
+cr
+  C='CS101' R='Auditorium'
+  C='EE200' R='25 Ohm Hall'
+  C='PH100' R='Newton Lab'
+
+csg
+  C='CS101' S='12345' G='A'
+  C='CS101' S='33333' G='A-'
+  C='CS101' S='67890' G='B'
+  C='EE200' S='12345' G='C'
+  C='EE200' S='22222' G='B+'
+  C='EE200' S='33333' G='B'
+  C='PH100' S='67890' G='C+'
+
+snap
+  S='12345' N='C. Brown' A='12 Apple' P='555-1234'
+  S='22222' N='P. Patty' A='56 Grape' P='555-9999'
+  S='33333' N='Snoopy' A='12 Apple' P='555-1234'
+  S='67890' N='L. Van Pelt' A='34 Pear' P='555-5678'
+
+Query Evaluation
+
+snap(S,'Snoopy',A,P)? Yes(1)
+select
+  S='33333' N='Snoopy' A='12 Apple' P='555-1234'
+project
+  S='33333' A='12 Apple' P='555-1234'
+rename
+  S='33333' A='12 Apple' P='555-1234'
+
+csg(Course,'33333',Grade)? Yes(2)
+select
+  C='CS101' S='33333' G='A-'
+  C='EE200' S='33333' G='B'
+project
+  C='CS101' G='A-'
+  C='EE200' G='B'
+rename
+  Course='CS101' Grade='A-'
+  Course='EE200' Grade='B'
+
+cr('CS101','Auditorium')? Yes(1)
+select
+  C='CS101' R='Auditorium'
+project
+rename
+
+cdh('EE200','F',Hour)? No
+
+csg(Course,Id,Grade)? Yes(7)
+select
+  C='CS101' S='12345' G='A'
+  C='CS101' S='33333' G='A-'
+  C='CS101' S='67890' G='B'
+  C='EE200' S='12345' G='C'
+  C='EE200' S='22222' G='B+'
+  C='EE200' S='33333' G='B'
+  C='PH100' S='67890' G='C+'
+project
+  C='CS101' S='12345' G='A'
+  C='CS101' S='33333' G='A-'
+  C='CS101' S='67890' G='B'
+  C='EE200' S='12345' G='C'
+  C='EE200' S='22222' G='B+'
+  C='EE200' S='33333' G='B'
+  C='PH100' S='67890' G='C+'
+rename
+  Course='CS101' Id='12345' Grade='A'
+  Course='CS101' Id='33333' Grade='A-'
+  Course='CS101' Id='67890' Grade='B'
+  Course='EE200' Id='12345' Grade='C'
+  Course='EE200' Id='22222' Grade='B+'
+  Course='EE200' Id='33333' Grade='B'
+  Course='PH100' Id='67890' Grade='C+'
+
+cdh(Course,Day,Hour)? Yes(4)
+select
+  C='CS101' D='F' H='9PM'
+  C='EE200' D='M' H='10AM'
+  C='EE200' D='W' H='10AM'
+  C='PH100' D='Tu' H='11AM'
+project
+  C='CS101' D='F' H='9PM'
+  C='EE200' D='M' H='10AM'
+  C='EE200' D='W' H='10AM'
+  C='PH100' D='Tu' H='11AM'
+rename
+  Course='CS101' Day='F' Hour='9PM'
+  Course='EE200' Day='M' Hour='10AM'
+  Course='EE200' Day='W' Hour='10AM'
+  Course='PH100' Day='Tu' Hour='11AM'
+
+cr(Course,Room)? Yes(3)
+select
+  C='CS101' R='Auditorium'
+  C='EE200' R='25 Ohm Hall'
+  C='PH100' R='Newton Lab'
+project
+  C='CS101' R='Auditorium'
+  C='EE200' R='25 Ohm Hall'
+  C='PH100' R='Newton Lab'
+rename
+  Course='CS101' Room='Auditorium'
+  Course='EE200' Room='25 Ohm Hall'
+  Course='PH100' Room='Newton Lab'
+

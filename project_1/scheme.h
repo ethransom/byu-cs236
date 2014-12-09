@@ -12,4 +12,10 @@ public:
 	Scheme(std::vector<Parameter> param_list);
 
 	void interpolatedPrint(std::ostream* output, Tuple tuple);
+
+	void removeAttribute(uint pos);
+
+	void renameAttribute(uint pos, std::string newval);
+
+	uint size();
 };

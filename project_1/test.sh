@@ -1,7 +1,7 @@
 #!/bin/bash
 
-for file in proj_2_tests/*.txt; do
-	expected="proj_2_tests/$(basename $file).out"
+for file in proj3/*.txt; do
+	expected="proj3/$(basename $file).out"
 	if test -e $expected; then
 		if (./main $file - | diff - $expected); then
 			echo "[SUCCESS] $file"

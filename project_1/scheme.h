@@ -9,11 +9,7 @@ class Scheme
 	std::vector<std::string> attributes;
 public:
 	Scheme() {};
-	Scheme(std::vector<Parameter*> param_list) {
-		for (auto param : param_list) {
-			attributes.push_back(param->str);
-		}
-	}
+	Scheme(std::vector<Parameter> param_list);
 
 	void interpolatedPrint(std::ostream* output, Tuple tuple);
 };

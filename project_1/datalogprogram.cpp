@@ -119,14 +119,14 @@ void DatalogProgram::evaluate(std::ostream* output) {
 
 	for (auto scheme : scheme_list) {
 		// add an empty relation
-		database.createRelation(scheme);
+		database.createRelation(&scheme);
 	}
 
 	// ===============================================
 
 	for (auto fact : fact_list) {
 		// add a tuple to a relation
-		database.insert(fact);
+		database.insert(&fact);
 	}
 
 	*output << "Fact Evaluation" << std::endl << std::endl;
@@ -138,6 +138,6 @@ void DatalogProgram::evaluate(std::ostream* output) {
 	for (auto query : query_list) {
 		// use operations to eval query
 		// output as we go
-		database.query(output, query);
+		database.query(output, &query);
 	}
 }

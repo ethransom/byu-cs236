@@ -17,8 +17,9 @@ void Database::insert(Predicate* fact) {
 void Database::print(std::ostream* output) {
 	*output << "Hello, I am a databse :)" << std::endl;
 
-	for (auto relation : relations) {
-		relation.print(output);
+	for (auto &pair : relations) {
+		*output << pair.first << std::endl;
+		pair.second.print(output);
 	}
 }
 

@@ -4,11 +4,11 @@ std::string Predicate::toString() {
 	std::ostringstream os;
 	os << identifier << "(";
 
-	auto last = param_list.back();
-	for (auto param : param_list) {
+	for (uint i = 0; i < param_list.size(); i++) {
+		auto param = param_list[i];
 		os << param.toString();
 
-		if (param != last) {
+		if ((i + 1) != param_list.size()) {
 			// last iteration
 			os << ",";
 		}

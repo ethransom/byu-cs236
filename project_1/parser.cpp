@@ -125,9 +125,11 @@ std::vector<Predicate> Parser::query_list() {
 
 	require(query(&p));
 	list.push_back(p);
+	p.param_list.clear();
 
 	while (query(&p)) {
 		list.push_back(p);
+		p.param_list.clear();
 	}
 
 	return list;
@@ -146,11 +148,13 @@ std::vector<Predicate> Parser::predicate_list() {
   Predicate p;
 	require(predicate(&p));
 	list.push_back(p);
+	p.param_list.clear();
 
 	while(accept(COMMA)) {
     Predicate p;
     require(predicate(&p));
     list.push_back(p);
+	p.param_list.clear();
 	}
 
 	return list;

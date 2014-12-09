@@ -29,11 +29,12 @@ std::string Rule::toString() {
 	std::ostringstream os;
 	os << predicate.toString() << " :- ";
 
-	auto last = predicate_list.back();
-	for (auto predicate : predicate_list) {
+	for (uint i = 0; i < predicate_list.size(); i++) {
+		auto predicate = predicate_list[i];
+
 		os << predicate.toString();
 
-		if (last != predicate) {
+		if ((i + 1) != predicate_list.size()) {
 			// last iteration
 			os << ",";
 		}

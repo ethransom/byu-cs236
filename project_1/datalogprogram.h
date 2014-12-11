@@ -22,9 +22,9 @@ public:
     return (type != b.type || str != b.str);
   }
 
-	std::string toString();
+	void toString(std::ostringstream& out) const;
 
-	void determineDomain(std::set<std::string>* domain);
+	void determineDomain(std::set<std::string>* domain) const;
 
 	Token_type type;
 	std::string str;
@@ -39,9 +39,9 @@ public:
     return (identifier != p.identifier || param_list != p.param_list);
   }
 
-	std::string toString();
+	void toString(std::ostringstream& out) const;
 
-	void determineDomain(std::set<std::string>* domain);
+	void determineDomain(std::set<std::string>* domain) const;
 };
 
 class Rule {
@@ -49,9 +49,9 @@ public:
 	Predicate predicate;
 	std::vector<Predicate> predicate_list;
 
-	std::string toString();
+	void toString(std::ostringstream& out) const;
 
-	void determineDomain(std::set<std::string>* domain);
+	void determineDomain(std::set<std::string>* domain) const;
 };
 
 class DatalogProgram {
@@ -65,5 +65,5 @@ public:
 
 	void determineDomain();
 
-	std::string toString();
+	std::string toString() const;
 };

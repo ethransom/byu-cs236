@@ -3,17 +3,23 @@
 #include <algorithm>
 
 void Relation::filterLiteral(uint pos, std::string str) {
-	for (auto tuple : tuples) {
-		if (tuple.values[pos] != str) {
-			tuples.erase(tuple);
+	auto it = tuples.begin();
+	while (it != tuples.end()) {
+		if (it->values[pos] != str) {
+			tuples.erase(it++);
+		} else {
+			++it;
 		}
 	}
 }
 
 void Relation::filterRepeat(uint pos1, uint pos2) {
-	for (auto tuple : tuples) {
-		if (tuple.values[pos1] != tuple.values[pos2]) {
-			tuples.erase(tuple);
+	auto it = tuples.begin();
+	while (it != tuples.end()) {
+		if (it->values[pos1] != it->values[pos2]) {
+			tuples.erase(it++);
+		} else {
+			++it;
 		}
 	}
 }
@@ -69,17 +75,21 @@ Relation Relation::select(std::vector<Parameter> params) {
 Relation Relation::project(std::vector<Parameter> params) {
 	Relation result = *this;
 	std::vector<std::string*> dups;
+	std::vector<uint> to_delete;
 
 	for (uint i = 0; i < params.size(); i++) {
 		auto param = params[i];
 		if (std::find(dups.begin(), dups.end(), &param.str) != dups.end()) {
-			result.deleteColumn(i);
+			to_delete.push_back(i);
 		} else if (param.type != ID) {
-			result.deleteColumn(i);
+			to_delete.push_back(i);
 		} else {
 			dups.push_back(&param.str);
 		}
 	}
+
+	for (auto it = to_delete.end(); it > to_delete.begin(); it--)
+		result.deleteColumn(*it);
 
 	return result;
 }

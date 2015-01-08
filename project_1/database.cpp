@@ -23,7 +23,15 @@ void Database::print(std::ostream* output) {
 }
 
 void Database::query(std::ostream* output, Predicate* query) {
-	Relation& relation = relations.at(query->identifier);
+	auto pos = relations.find(query->identifier);
+	if (pos == relations.end()) {
+		*output << "ERROR: no such relation " << query->identifier << std::endl;
+		*output << "  " << query->toString() << std::endl;
+
+		return;
+	}
+
+	Relation& relation = pos->second;
 
 	// evaluate the query, storing intermediate steps for later output
 	auto select = relation.select(query->param_list);

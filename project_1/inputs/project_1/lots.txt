@@ -1,0 +1,7 @@
+.
+,
+'a string'
+#Comments get dropped
+Schemes
+FactsRules
+::-

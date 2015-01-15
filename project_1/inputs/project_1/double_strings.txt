@@ -1,0 +1,6 @@
+'string one''string two'
+
+'string'ident'string'Facts
+
+''emptytring
+

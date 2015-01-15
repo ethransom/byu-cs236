@@ -1,0 +1,3 @@
+# run me to take notes for the day
+
+vim $(date +%Y-%m-%d-%a).md

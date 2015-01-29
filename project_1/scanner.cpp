@@ -5,55 +5,58 @@
 
 static const std::string ALPHA_NUMERIC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
-uint scanner_pos = 0;
+class InputException : std::exception {};
 
-bool read_until(std::string* input, std::string delimiter, std::string* output) {
-	size_t pos = input->find(delimiter, scanner_pos);
+Scanner::Scanner(std::string* i) {
+	input = i;
+	line = 1;
+	commit_pos = 0;
+	seek_pos = 0;
+}
+
+bool Scanner::read_until(std::string delimiter) {
+	size_t pos = input->find(delimiter, seek_pos);
 	std::string token;
 
 	if (pos != std::string::npos) {
-		*output = input->substr(scanner_pos, (pos - scanner_pos));
-		scanner_pos = pos + delimiter.length();
+		seek_pos = pos;
 		return true;
 	} else {
 		return false;
 	}
 }
 
-bool read_string(std::string* input, std::string value, std::string* output) {
-	std::string token = input->substr(scanner_pos, value.length());
+bool Scanner::read_past(std::string delimiter) {
+	if (!read_until(delimiter)) return false;
+
+	// seek_pos is at the beginning of the delimeter, put it at the end
+	seek_pos += delimiter.length();
+
+	return true;
+}
+
+bool Scanner::read_string(std::string value) {
+	// CRIT: remove inefficiency
+	std::string token = input->substr(seek_pos, value.length());
 
 	if (token == value) { // input must start with desired string
-		// input->erase(0, value.length());
-		scanner_pos += value.length();
-		*output = token;
+		seek_pos += value.length();
 		return true;
 	} else {
 		return false;
 	}
 }
 
-// TO WHOM IT MAY CONCERN
-// the following 3 code snippets may make little sense to you
-// a trained eye will note, however, that this is only because they are "low complexity"
-// my personal favorite, the "function in halves" has a cyclomatic complexity of 1
-// what a triumph! THIS is what maintanable code looks like!!!!!!
-//
-// In all seriousness though, the main loop of a lexer can be expected to be long
-// and have a lot of if/elses. This does not equate with complexity, as a human
-// can easily understand that verbosity and simplicity are not mutually exclusive.
+bool Scanner::read_identifier(Token_type* type) {
+	if (isalpha(input->at(seek_pos))) {
+		size_t pos = input->find_first_not_of(ALPHA_NUMERIC, seek_pos);
+		std::string output = input->substr(seek_pos, (pos - seek_pos));
+		seek_pos = pos;
 
-bool read_identifier(std::string* input, std::string* output, Token_type* type) {
-	if (isalpha(input->at(scanner_pos))) {
-		size_t pos = input->find_first_not_of(ALPHA_NUMERIC, scanner_pos);
-		*output = input->substr(scanner_pos, (pos - scanner_pos));
-		// input->erase(0, pos);
-		scanner_pos = pos;
-
-		if (*output == "Schemes") *type = SCHEMES;
-		else if (*output == "Facts") *type = FACTS;
-		else if (*output == "Rules") *type = RULES;
-		else if (*output == "Queries") *type = QUERIES;
+		if (output == "Schemes") *type = SCHEMES;
+		else if (output == "Facts") *type = FACTS;
+		else if (output == "Rules") *type = RULES;
+		else if (output == "Queries") *type = QUERIES;
 		else *type = ID;
 
 		return true;
@@ -62,90 +65,141 @@ bool read_identifier(std::string* input, std::string* output, Token_type* type) 
 	}
 }
 
-// read_punctuation is down to a complexity of 1! It must be so maintainable!
-#define FIRST_HALF\
-	if (read_string(input, ",", output)) {\
-		*type = COMMA;\
-	} else if (read_string(input, ".", output)) {\
-		*type = PERIOD;\
-	} else if (read_string(input, "?", output)) {\
-		*type = Q_MARK;\
-	} else if (read_string(input, "(", output)) {\
-		*type = LEFT_PAREN;\
-	} else
-#define SECOND_HALF\
-	if (read_string(input, ")", output)) {\
-		*type = RIGHT_PAREN;\
-	} else if (read_string(input, ":-", output)) {\
-		*type = COLON_DASH;\
-	} else if (read_string(input, ":", output)) {\
-		*type = COLON;\
-	} else if (read_string(input, ".", output)) {\
-		*type = PERIOD;\
-	} else {\
-		return false;\
+bool Scanner::read_punctuation(Token_type* type) {
+	if (read_string(",")) {
+		*type = COMMA;
+	} else if (read_string(".")) {
+		*type = PERIOD;
+	} else if (read_string("?")) {
+		*type = Q_MARK;
+	} else if (read_string("(")) {
+		*type = LEFT_PAREN;
+	} else if (read_string(")")) {
+		*type = RIGHT_PAREN;
+	} else if (read_string("*")) {
+		*type = MULTIPLY;
+	} else if (read_string("+")) {
+		*type = ADD;
+	} else if (read_string(":-")) {
+		*type = COLON_DASH;
+	} else if (read_string(":")) {
+		*type = COLON;
+	} else if (read_string(".")) {
+		*type = PERIOD;
+	} else {
+		return false;
 	}
-bool read_punctuation(std::string* input, std::string* output, Token_type* type) {
-	FIRST_HALF
-	SECOND_HALF
 
 	return true;
 }
 
-#define SKIP_NEWLINES if (read_string(&str, "\n", &output)) { line++; continue; }
+std::string Scanner::commit() {
+	// TODO: string slices?
+	std::string output = input->substr(commit_pos, (seek_pos - commit_pos));
 
-#define SKIP_WHITESPACE if ( read_string(&str, "\t", &output) || read_string(&str, " ", &output)) continue;
+	commit_pos = seek_pos;
 
-// it's actually about ethics in game journalism!
-#define MAIN_LOOP while ((scanner_pos + 1) < str.length())
+	return output;
+}
 
-// Fills the given vector with tokens read from the given string.
-// Exits early on error, returning the line number of the error.
-// Returns -1 on success.
-int Scanner::lex_file(std::string str, std::vector<Token>** token_vec) {
-	int line = 1;
-	*token_vec = new std::vector<Token>;
+void Scanner::add(Token_type t) {
+	Token token(t, commit(), line);
+	tokens.push_back(token);
+}
 
-	MAIN_LOOP {
-		std::string output;
-		Token_type type;
+bool Scanner::end_of_file() {
+	return (seek_pos + 1) > input->length();
+}
 
-		SKIP_NEWLINES;
+char Scanner::peek() {
+	if (end_of_file())
+		throw InputException();
 
-		SKIP_WHITESPACE;
+	return input->at(seek_pos + 1);
+}
 
-		if (read_string(&str, "#", &output)) { // comments
-			// TODO: make sure this handles EOF
-			read_until(&str, "\n", &output);
-			line++;
-			continue;
-		}
+char Scanner::read() {
+	char c = peek();
+	seek_pos++;
 
-		if (read_punctuation(&str, &output, &type)) { // punctuation
-			// do nothing, output and type have been populated
-		} else if (read_string(&str, "'", &output)) { // strings
-			type = STRING;
+	return c;
+}
 
-			if (read_until(&str, "'", &output)) {
-				// string ended, check for lines inside string
+// returns tokens read from the scanner's input
+std::vector<Token> Scanner::lex_file() {
+	while (!end_of_file()) {
+		try {
+			Token_type type;
 
-				size_t pos = (&output)->find("\n");
-				if (pos != std::string::npos) {
-					return line;
-				}
-			} else {
-				// string did not end
-				return line;
+			if (read_string("\n")) {
+				line++;
+				commit();
+				continue;
 			}
-		} else if (read_identifier(&str, &output, &type)) {
-			// do nothing
-		} else {
-			return line;
-		}
 
-		Token token(type, output, line);
-		(*token_vec)->push_back(token);
+			if (isspace(input->at(seek_pos))) {
+				seek_pos++;
+				commit();
+				continue;
+			}
+
+			// multi-line comments
+			if (read_string("#|")) {
+				for (char c; read_string("|#"); c = read())
+					if (c == '\n') line++;
+
+				read_past("|#");
+
+				type = COMMENT;
+			}
+			// single-line comments
+			else if (read_string("#")) {
+				// TODO: make sure this handles EOF
+				read_until("\n");
+				add(COMMENT);
+
+				// consume the newline character
+				line++;
+				seek_pos++;
+				commit();
+
+				continue;
+			} else if (read_punctuation(&type)) { // punctuation
+				// do nothing, output and type have been populated
+			} else if (read_string("'")) { // strings
+				// for whatever reason, we consider the line number of the
+				// string to be where it starts
+				// thus, we need to keep a local delta
+				uint line_delta = line;
+
+				char c;
+				while ((c = read()) != '\'') {
+
+					// two single quotes do not count. why? nobody knows
+					if (peek() == '\'')
+						read(); // consume
+
+					if (c == '\n') line_delta++;
+				}
+
+				add(STRING);
+				line  = line_delta;
+				continue;
+			} else if (read_identifier(&type)) {
+				// do nothing
+			} else {
+				seek_pos++; // consume the mysterious character
+				throw InputException();
+			}
+
+			add(type);
+		} catch (const InputException& e) {
+			add(UNDEFINED);
+		}
 	}
 
-	return -1;
+	// add the EOF token
+	add(END);
+
+	return tokens;
 }

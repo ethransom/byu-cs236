@@ -37,21 +37,14 @@ int main(int argc, char** argv) {
 	std::ifstream input(filename);
 	std::string str = slurp(input);
 
-	std::vector<Token>* tokens;
+	Scanner scanner(&str);
+	auto tokens = scanner.lex_file();
 
-	int lex_line_of_error = Scanner::lex_file(str, &tokens);
-
-	for (std::vector<Token>::iterator i = tokens->begin(); i != tokens->end(); ++i) {
+	for (std::vector<Token>::iterator i = tokens.begin(); i != tokens.end(); ++i) {
 		output << *i << std::endl;
 	}
 
-	if (lex_line_of_error > -1) {
-		output << "Input Error on line " << lex_line_of_error << std::endl;
-	} else {
-		output << "Total Tokens = " << tokens->size() << std::endl;
-	}
-
-	delete tokens;
+	output << "Total Tokens = " << tokens.size() << std::endl;
 
 	return 0;
 }

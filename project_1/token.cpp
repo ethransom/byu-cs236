@@ -7,6 +7,8 @@ std::string Token_type_human_readable[] = {
 	"Q_MARK",
 	"LEFT_PAREN",
 	"RIGHT_PAREN",
+	"MULTIPLY",
+	"ADD",
 	"COLON",
 	"COLON_DASH",
 	"SCHEMES",
@@ -15,6 +17,9 @@ std::string Token_type_human_readable[] = {
 	"QUERIES",
 	"ID",
 	"STRING",
+	"COMMENT",
+	"EOF",
+	"UNDEFINED",
 };
 
 std::ostream& operator<<(std::ostream& os, const Token& obj) {

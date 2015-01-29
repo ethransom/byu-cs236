@@ -9,6 +9,8 @@ typedef enum {
 	Q_MARK,
 	LEFT_PAREN,
 	RIGHT_PAREN,
+	MULTIPLY,
+	ADD,
 	COLON,
 	COLON_DASH,
 	SCHEMES,
@@ -17,6 +19,9 @@ typedef enum {
 	QUERIES,
 	ID,
 	STRING,
+	COMMENT,
+	END, // apparently EOF is reserved in C++
+	UNDEFINED,
 } Token_type;
 
 class Token {

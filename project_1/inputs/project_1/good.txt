@@ -1,5 +1,9 @@
+# comment
 Queries:
    marriedTo ('Bea' , 'Zed')?
 
+#|
+Multi Comment
+|#
 Rules:
    marriedTo( X,Y ) :- marriedTo(Y,X) .

@@ -3,7 +3,7 @@
 #include <sstream>
 #include <cstring>
 
-#include "scanner.h"
+#include "lexer.h"
 #include "token.h"
 
 std::string slurp(std::ifstream& in) {
@@ -37,11 +37,11 @@ int main(int argc, char** argv) {
 	std::ifstream input(filename);
 	std::string str = slurp(input);
 
-	Scanner scanner(&str);
-	auto tokens = scanner.lex_file();
+	Lexer lexer(&str);
+	auto tokens = lexer.lex_file();
 
-	for (std::vector<Token>::iterator i = tokens.begin(); i != tokens.end(); ++i) {
-		output << *i << std::endl;
+	for (auto t : tokens) {
+		output << t << std::endl;
 	}
 
 	output << "Total Tokens = " << tokens.size() << std::endl;

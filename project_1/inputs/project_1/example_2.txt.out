@@ -1,0 +1,18 @@
+(QUERIES,"Queries",1)
+(COLON,":",1)
+(ID,"IsInRoomAtDH",2)
+(LEFT_PAREN,"(",2)
+(STRING,"'Snoopy'",2)
+(COMMA,",",2)
+(ID,"R",2)
+(COMMA,",",2)
+(STRING,"'M'",2)
+(COMMA,",",2)
+(ID,"H",2)
+(RIGHT_PAREN,")",2)
+(COMMENT,"#SchemesFactsRules<",3)
+(PERIOD,".",4)
+(COMMENT,"#|comment >=
+wow|#",5)
+(EOF,"",7)
+Total Tokens = 16

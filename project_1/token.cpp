@@ -2,6 +2,7 @@
 
 // this must exactly match the order of Token_type
 std::string Token_type_human_readable[] = {
+	"NONE", // isn't actually a real token
 	"COMMA",
 	"PERIOD",
 	"Q_MARK",

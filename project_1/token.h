@@ -4,6 +4,7 @@
 #include <string>
 
 typedef enum {
+	NONE,
 	COMMA,
 	PERIOD,
 	Q_MARK,
@@ -31,6 +32,8 @@ public:
 		str = s;
 		line_num = l;
 	}
+
+	Token() : type(NONE), str(""), line_num(0) {};
 
 	Token_type type;
 	std::string str;

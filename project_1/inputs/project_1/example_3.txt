@@ -7,4 +7,3 @@ Rules Facts Schemes
 I am' $ A 'this has a
 Return
 The end''s near
-

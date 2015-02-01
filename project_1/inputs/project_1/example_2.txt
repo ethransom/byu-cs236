@@ -1,9 +1,6 @@
 Queries:
-IsInRoomAtDH('Snoopy',R,'M'H)?
-Rules Facts Schemes
-&@Queries
-:
-'hello
-I am' $ A 'this has a
-Return
-The end''s near
+IsInRoomAtDH('Snoopy',R,'M',H)
+#SchemesFactsRules<
+.
+#|comment >=
+wow|#

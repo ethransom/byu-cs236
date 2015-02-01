@@ -17,46 +17,44 @@ class Lexer {
 	Seeker input;
 	std::deque<Token> tokens;
 
-	static std::vector<std::pair<bool (*) (Seeker&), Token_type>> automata;
-
 	// AUTOMATONs
-	static bool read_newline(Seeker input);
+	bool read_newline();
 
-	static bool read_whitespace(Seeker input);
+	bool read_whitespace();
 
-	static bool read_multiline_comment(Seeker input);
+	bool read_multiline_comment();
 
-	static bool read_comment(Seeker input);
+	bool read_comment();
 
-	static bool read_comma(Seeker input);
+	bool read_comma();
 
-	static bool read_period(Seeker input);
+	bool read_period();
 
-	static bool read_q_mark(Seeker input);
+	bool read_q_mark();
 
-	static bool read_left_paren(Seeker input);
+	bool read_left_paren();
 
-	static bool read_right_paren(Seeker input);
+	bool read_right_paren();
 
-	static bool read_multiply(Seeker input);
+	bool read_multiply();
 
-	static bool read_add(Seeker input);
+	bool read_add();
 
-	static bool read_colon_dash(Seeker input);
+	bool read_colon_dash();
 
-	static bool read_colon(Seeker input);
+	bool read_colon();
 
-	static bool read_string(Seeker input);
+	bool read_string();
 
-	static bool read_schemes(Seeker input);
+	bool read_schemes();
 
-	static bool read_facts(Seeker input);
+	bool read_facts();
 
-	static bool read_rules(Seeker input);
+	bool read_rules();
 
-	static bool read_queries(Seeker input);
+	bool read_queries();
 
-	static bool read_identifier(Seeker input);
+	bool read_identifier();
 	// END AUTOMATONS
 
 	// add a token with the given data to the output

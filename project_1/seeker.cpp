@@ -71,5 +71,6 @@ void Seeker::reset() {
 }
 
 uint Seeker::get_current_line() {
-	return seek_line;
+	// return starting line of token
+	return commit_line;
 }

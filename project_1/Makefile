@@ -3,7 +3,7 @@ CFLAGS=-g -std=c++11 -Wall
 all: main
 
 pkg: main
-	zip project1.zip *.h *.cpp
+	zip lab1.zip *.h *.cpp
 
 main: *.cpp *.h
 	g++ *.cpp -o main -Wall -std=c++11 -g

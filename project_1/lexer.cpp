@@ -30,8 +30,10 @@ bool Lexer::read_whitespace() {
 bool Lexer::read_multiline_comment() {
 	// multi-line comments
 	if (input.read_string("#|")) {
-		while (!input.read_string("|#"))
+		while (!(input.check() == '|' && input.peek() == '#'))
 			input.read();
+
+		input.read_string("|#"); // consume the close comment
 
 		return true;
 	}
@@ -41,10 +43,7 @@ bool Lexer::read_multiline_comment() {
 
 bool Lexer::read_comment() {
 	if (input.read() == '#') {
-		while (input.peek() != '\n') input.read();
-
-		// bring us just to the edge of the newline
-		input.read();
+		while (input.check() != '\n') input.read();
 
 		return true;
 	}

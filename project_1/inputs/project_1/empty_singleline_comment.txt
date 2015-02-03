@@ -1,0 +1,4 @@
+'hello, world'
+'here comes an empty comment'
+stuffbefore #
+'oh noes

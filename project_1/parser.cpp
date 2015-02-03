@@ -16,7 +16,7 @@ bool Parser::accept(Token_type type) {
 	// std::cout << "checking " << Token_type_human_readable[token.type]
 		// << " with " << Token_type_human_readable[type] << std::endl;
 	if (token.type == type) {
-		tokens->pop();
+		tokens->pop_front();
 		return true;
 	} else {
 		return false;
@@ -30,7 +30,7 @@ bool Parser::accept(Token_type type, std::string* dest) {
 	// std::cout << "checking " << Token_type_human_readable[token.type]
 		// << " with " << Token_type_human_readable[type] << std::endl;
 	if (token.type == type) {
-		tokens->pop();
+		tokens->pop_front();
 		*dest = token.str;
 		return true;
 	} else {
@@ -44,182 +44,157 @@ bool Parser::accept(Token_type type, std::string* dest) {
 // very bad if this isn't there
 #define require(val) if (!val) throw ParseError();
 
-DatalogProgram* Parser::program() {
-	DatalogProgram* prog = new DatalogProgram();
+bool Parser::program(DatalogProgram& prog) {
 	require(accept(SCHEMES));
 	require(accept(COLON));
-	prog->scheme_list = scheme_list();
+	require(scheme_list(prog.scheme_list));
 
 	require(accept(FACTS));
 	require(accept(COLON));
-	prog->fact_list = fact_list();
+	require(fact_list(prog.fact_list));
 
 	require(accept(RULES));
 	require(accept(COLON));
-	prog->rule_list = rule_list();
+	require(rule_list(prog.rule_list));
 
 	require(accept(QUERIES));
 	require(accept(COLON));
-	prog->query_list = query_list();
+	require(query_list(prog.query_list));
 
 	if (tokens->size() != 0) {
 		throw ParseError();
 	}
 
-	return prog;
+	return true;
 }
 
-std::vector<Predicate*> Parser::scheme_list() {
-	std::vector<Predicate*> list;
+// bool Parser::scheme_list(std::vector<Predicate>& out) {
+// 	// accept at least one predicate
+// 	require(predicate(out));
 
-	// accept at least one predicate
-	Predicate* p = predicate();
-	require(p);
-	list.push_back(p);
+// 	while (predicate(out));
 
-	while (p = predicate()) {
-		list.push_back(p);
-	}
+// 	return true;
+// }
 
-	return list;
-}
-
-std::vector<Predicate*> Parser::fact_list() {
-	std::vector<Predicate*> list;
-	Predicate* p;
+bool Parser::fact_list(std::vector<Predicate>& out) {
+	Predicate p;
 
 	// possibly accept a fact
-	while(p = fact()) {
-		list.push_back(p);
-	}
+	while(fact(p))
+		out.push_back(p); // MOVE
 
-	return list;
+	return true;
 }
 
-Predicate* Parser::fact() {
-	auto p = predicate();
-	expect(p);
+bool Parser::fact(Predicate& p) {
+	expect(predicate(p));
 	require(accept(PERIOD));
 
-	return p;
+	return true;
 }
 
-std::vector<Rule*> Parser::rule_list() {
-	std::vector<Rule*> list;
-	Rule* r;
+// bool Parser::rule_list(std::vector<Rule>& out) {
+// 	while(rule(out));
 
-	while(r = rule()) {
-		list.push_back(r);
-	}
+// 	return true;
+// }
 
-	return list;
-}
+// bool Parser::rule(std::vector<Rule>& out) {
+// 	Rule rule();
 
-Rule* Parser::rule() {
-	auto p = predicate();
-	expect(p);
-	require(accept(COLON_DASH));
-	auto list = predicate_list();
-	// require(list);
-	require(accept(PERIOD));
+// 	expect(predicate(rule.predicate()));
+// 	require(accept(COLON_DASH));
+// 	require(predicate_list(rule.predicate_list));
+// 	require(accept(PERIOD));
 
-	Rule* rule = new Rule();
-	rule->predicate = p;
-	rule->predicate_list = list;
+// 	out.push_back(rule);
 
-	return rule;
-}
+// 	return true;
+// }
 
-std::vector<Predicate*> Parser::query_list() {
-	std::vector<Predicate*> list;
-	Predicate* p;
+// bool Parser::query_list(std::vector<Predicate>& out) {
+// 	Predicate query;
+// 	require(query(query));
+// 	list.push_back(query);
 
-	p = query();
-	require(p);
-	list.push_back(p);
+// 	while (query(query)) {
+// 		list.push_back(query);
+// 	}
 
-	while (p = query()) {
-		list.push_back(p);
-	}
+// 	return true;
+// }
 
-	return list;
-}
+// bool Parser::query(Predicate& out) {
+// 	expect(predicate(out));
+// 	require(accept(Q_MARK));
 
-Predicate* Parser::query() {
-	auto p = predicate();
-	expect(p);
-	require(accept(Q_MARK));
+// 	return true;
+// }
 
-	return p;
-}
+// bool Parser::predicate_list(std::vector<Predicate>&) {
+// 	std::vector<Predicate*> list;
 
-std::vector<Predicate*> Parser::predicate_list() {
-	std::vector<Predicate*> list;
+// 	auto p = predicate();
+// 	require(p);
+// 	list.push_back(p);
 
-	auto p = predicate();
-	require(p);
-	list.push_back(p);
+// 	while(accept(COMMA)) {
+// 		auto p = predicate();
+// 		require(p);
+// 		list.push_back(p);
+// 	}
 
-	while(accept(COMMA)) {
-		auto p = predicate();
-		require(p);
-		list.push_back(p);
-	}
+// 	return true;
+// }
 
-	return list;
-}
-
-Predicate* Parser::predicate() {
-	auto p = new Predicate();
-	expect(accept(ID, &p->identifier));
+bool Parser::predicate(Predicate&) {
+	expect(accept(ID, &p.identifier));
 	require(accept(LEFT_PAREN));
 
-	auto list = parameter_list();
-	p->param_list = list;
+	require(parameter_list(p.param_list));
 
 	require(accept(RIGHT_PAREN));
 
-	return p;
+	return true;
 }
 
-std::vector<Parameter*> Parser::parameter_list() {
-	std::vector<Parameter*> params;
+bool Parser::parameter_list(std::vector<Parameter>& out) {
+	std::vector<Parameter> params;
 
 	// accept at least one paramters, separated by commas
-	auto t = parameter();
-	require(t);
-	params.push_back(t);
+	require(parameter(out));
 
 	while (accept(COMMA)) {
-		auto t = parameter();
-		require(t);
-		params.push_back(t);
+		require(parameter(out));
 	}
 
-	return params;
+	return true;
 }
 
-Parameter* Parser::parameter() {
+bool Parser::parameter(std::vector<Parameter>& out) {
 	Token token = tokens->front();
 	if (token.type == ID || token.type == STRING) {
-		tokens->pop();
-		auto t = new Parameter(&token);
-		return t;
+		tokens->pop_front();
+		out.emplace_back(&token);
+		return true;
 	} else {
-		return NULL;
+		return false;
 	}
 }
 
 // PUBLIC METHODS
 
-Parser::Parser(std::queue<Token>* t) {
+Parser::Parser(std::deque<Token>* t) {
 	tokens = t;
 }
 
-DatalogProgram* Parser::parse_tokens() {
-	DatalogProgram* prog = program();
+Token* Parser::parse_tokens(DatalogProgram& prog) {
+	if (!program(prog)) {
+		return &tokens->front();
+	}
 
-	prog->determineDomain();
+	prog.determineDomain();
 
-	return prog;
+	return NULL;
 }

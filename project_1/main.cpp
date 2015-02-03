@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 	Parser parser(&tokens);
 
 	DatalogProgram prog;
-	Token offending = parser.parse_tokens(prog);
+	Token* offending = parser.parse_tokens(prog);
 	if (offending == NULL) {
 		std::cout << "Failure!" << std::endl << "  " << offending << std::endl;
 		return 0;

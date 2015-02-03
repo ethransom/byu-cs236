@@ -13,27 +13,34 @@ class ParseError : public std::exception {
 };
 
 class Parser {
-	std::queue<Token>* tokens;
+	std::deque<Token>* tokens;
 
 	void error();
 	bool accept(Token_type token);
 	bool accept(Token_type token, std::string* dest);
 
-	DatalogProgram* program();
-	std::vector<Predicate*> scheme_list();
-	std::vector<Predicate*> fact_list();
-	Predicate* fact();
-	std::vector<Rule*> rule_list();
-	Rule* rule();
-	std::vector<Predicate*> query_list();
-	Predicate* query();
-	std::vector<Predicate*> predicate_list();
-	Predicate* predicate();
-	std::vector<Parameter*> parameter_list();
-	Parameter* parameter();
+	// BEGIN PARSE RULES
+
+	// all rules passed a ref to the object they're supposed to parse
+	// all rules return success status as boolean
+	// rules won't modify ref if unsuccessful
+	// TODO: ^ good idea? actually true?
+
+	bool program(DatalogProgram& prog);
+	bool scheme_list(std::vector<Predicate>&);
+	bool fact_list(std::vector<Predicate>&);
+	bool fact(Predicate&);
+	bool rule_list(std::vector<Rule>&);
+	bool rule(Rule&);
+	bool query_list(std::vector<Predicate>&);
+	bool query(Predicate&);
+	bool predicate_list(std::vector<Predicate>&);
+	bool predicate(Predicate&);
+	bool parameter_list(std::vector<Parameter>&);
+	bool parameter(Parameter&);
 
 public:
-	Parser(std::queue<Token>*);
+	Parser(std::deque<Token>*);
 
 	// use the tokens to populate the datalog program
 	// note that this consumes tokens from the queue

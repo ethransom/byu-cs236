@@ -34,9 +34,15 @@ bool Parser::match(Token_type type) {
 #define require(val) if (!val) return false;
 
 bool Parser::program(DatalogProgram& prog) {
+	prog.scheme_list.emplace_back();
+	Scheme& first_scheme = prog.scheme_list.back();
+	prog.query_list.emplace_back();
+	Query& first_query = prog.query_list.back();
+
 	return (
 		match(SCHEMES) &&
 		match(COLON) &&
+		scheme(first_scheme) &&
 		scheme_list(prog.scheme_list) &&
 
 		match(FACTS) &&
@@ -49,6 +55,7 @@ bool Parser::program(DatalogProgram& prog) {
 
 		match(QUERIES) &&
 		match(COLON) &&
+		query(first_query) &&
 		query_list(prog.query_list) &&
 
 		match(END)

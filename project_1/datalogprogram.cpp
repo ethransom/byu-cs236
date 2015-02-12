@@ -1,15 +1,51 @@
 #include "datalogprogram.h"
 
-std::ostream& operator<<(std::ostream& os, const Predicate& obj) {
-	os << obj.identifier << "(";
+void Expression::collectDomain(std::set<std::string>& domain) const {
+	left->collectDomain(domain);
+	right->collectDomain(domain);
+}
 
-	for (uint i = 0; i < obj.param_list.size(); i++) {
-		os << obj.param_list[i];
+void Literal::collectDomain(std::set<std::string>& domain) const {
+	domain.insert(str);
+}
 
-		if ((i + 1) != obj.param_list.size()) {
-			// last iteration
+// std::ostream& Literal::operator<<(std::ostream& os) {
+// 	os << str;
+
+// 	return os;
+// }
+
+// std::ostream& Identifier::operator<<(std::ostream& os) {
+// 	os << str;
+
+// 	return os;
+// }
+
+std::ostream& operator<<(std::ostream& os, const Literal& literal) {
+	os << literal.str;
+
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Identifier& identifier) {
+	os << identifier.str;
+
+	return os;
+}
+
+// std::ostream& Expression::operator<<(std::ostream& os) {
+// 	os << left << type << right;
+
+// 	return os;
+// }
+
+std::ostream& operator<<(std::ostream& os, const Predicate& predicate) {
+	os << predicate.identifier << "(";
+
+	for (size_t i = 0; i < predicate.param_list.size(); ++i) {
+		if (i != 0)
 			os << ",";
-		}
+		predicate.param_list[i]->flatten(os);
 	}
 
 	os << ")";
@@ -17,61 +53,58 @@ std::ostream& operator<<(std::ostream& os, const Predicate& obj) {
 	return os;
 }
 
-void Predicate::determineDomain(std::set<std::string>* domain) {
-	for (auto param : param_list) {
-		param.determineDomain(domain);
-	}
-}
+std::ostream& operator<<(std::ostream& os, const Scheme& scheme) {
+	os << scheme.identifier << "(";
 
-std::ostream& operator<<(std::ostream& os, const Rule& obj) {
-	os << obj.predicate << " :- ";
-
-	for (uint i = 0; i < obj.predicate_list.size(); i++) {
-		os << obj.predicate_list[i];
-
-		if ((i + 1) != obj.predicate_list.size()) {
-			// last iteration
+	for (size_t i = 0; i < scheme.param_list.size(); ++i) {
+		if (i != 0)
 			os << ",";
-		}
+		scheme.param_list[i].flatten(os);
+	}
+
+	os << ")";
+
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Fact& fact) {
+	os << fact.identifier << "(";
+
+	for (size_t i = 0; i < fact.param_list.size(); ++i) {
+		if (i != 0)
+			os << ",";
+		fact.param_list[i].flatten(os);
+	}
+
+	os << ")";
+
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Rule& rule) {
+	os << rule.scheme << " :- ";
+
+	for (size_t i = 0; i < rule.predicate_list.size(); ++i) {
+		if (i != 0)
+			os << ",";
+		os << rule.predicate_list[i];
 	}
 
 	return os;
 }
 
-void Rule::determineDomain(std::set<std::string>* domain) {
-	for (auto p : predicate_list) {
-		p.determineDomain(domain);
-	}
-}
+std::ostream& operator<<(std::ostream& os, const Query& query) {
+	os << query.identifier << "(";
 
-std::ostream& operator<<(std::ostream& os, const Parameter& obj) {
-	if (obj.type == STRING) {
-		os << "'" << obj.str << "'";
-	} else if (obj.type == ID) {
-		os << obj.str;
+	for (size_t i = 0; i < query.param_list.size(); ++i) {
+		if (i != 0)
+			os << ",";
+		query.param_list[i]->flatten(os);
 	}
+
+	os << ")";
 
 	return os;
-}
-
-void Parameter::determineDomain(std::set<std::string>* domain) {
-	if (type == STRING) {
-		domain->insert(str);
-	}
-}
-
-void DatalogProgram::determineDomain() {
-	for (auto i : scheme_list)
-		i.determineDomain(&domain);
-
-	for (auto i : fact_list)
-		i.determineDomain(&domain);
-
-	for (auto i : rule_list)
-		i.determineDomain(&domain);
-
-	for (auto i : query_list)
-		i.determineDomain(&domain);
 }
 
 std::ostream& operator<<(std::ostream& os, const DatalogProgram& obj) {
@@ -82,22 +115,17 @@ std::ostream& operator<<(std::ostream& os, const DatalogProgram& obj) {
 
 	os << "Facts(" << obj.fact_list.size() << "):" << std::endl;
 	for (auto i : obj.fact_list) {
-		os << "  " << i << std::endl;
+		os << "  " << i << "." << std::endl;
 	}
 
 	os << "Rules(" << obj.rule_list.size() << "):" << std::endl;
 	for (auto i : obj.rule_list) {
-		os << "  " << i << std::endl;
+		os << "  " << i << "." << std::endl;
 	}
 
 	os << "Queries(" << obj.query_list.size() << "):" << std::endl;
 	for (auto i : obj.query_list) {
-		os << "  " << i << std::endl;
-	}
-
-	os << "Domain(" << obj.domain.size() << "):" << std::endl;
-	for (auto str : obj.domain) {
-		os << "  '" << str << "'" << std::endl;
+		os << "  " << i << "?" << std::endl;
 	}
 
 	return os;

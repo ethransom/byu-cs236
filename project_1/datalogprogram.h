@@ -1,60 +1,100 @@
 #pragma once
 
 #include <vector>
+#include <ostream>
 #include <set>
-#include <sstream>
 
 #include "token.h"
 
 class Parameter {
 public:
-	Parameter(Token* token) {
-		type = token->type;
-		str = token->str;
-	}
+	void collectDomain(std::set<std::string>&) const {};
 
-	friend std::ostream& operator<<(std::ostream& os, const Parameter& obj);
+	virtual void flatten(std::ostream& os) const = 0;
+	// virtual std::ostream& operator<<(std::ostream& os) = 0;
+};
 
-	void determineDomain(std::set<std::string>* domain);
+class Expression : public Parameter {
+public:
+	Parameter* left;
+	char type;
+	Parameter* right;
 
-	Token_type type;
+	void collectDomain(std::set<std::string>&) const;
+
+	virtual void flatten(std::ostream& os) const { left->flatten(os); os << type; right->flatten(os); };
+	// virtual std::ostream& operator<<(std::ostream& os);
+};
+
+class Identifier : public Parameter {
+public:
+	void collectDomain(std::set<std::string>&) const {};
 	std::string str;
+
+	virtual void flatten(std::ostream& os) const { os << str; };
+	// virtual std::ostream& operator<<(std::ostream& os);
+
+	friend std::ostream& operator<<(std::ostream& os, const Identifier&);
+};
+
+class Literal : public Parameter {
+public:
+	void collectDomain(std::set<std::string>&) const;
+	std::string str;
+
+	virtual void flatten(std::ostream& os) const { os << str; };
+	// virtual std::ostream& operator<<(std::ostream& os);
+
+	friend std::ostream& operator<<(std::ostream& os, const Literal&);
 };
 
 class Predicate {
 public:
 	std::string identifier;
-	std::vector<Parameter> param_list;
+	std::vector<Parameter*> param_list;
+	// ^ yes, using a pointer is breaking from convention, but polymorphism
 
 	friend std::ostream& operator<<(std::ostream& os, const Predicate& obj);
+};
 
-	void determineDomain(std::set<std::string>* domain);
+class Scheme {
+public:
+	std::string identifier;
+	std::vector<Identifier> param_list;
+
+	friend std::ostream& operator<<(std::ostream& os, const Scheme& s);
+};
+
+class Fact {
+public:
+	std::string identifier;
+	std::vector<Literal> param_list;
+
+	// friend std::ostream& operator<<(std::ostream& os, const Fact& f);
 };
 
 class Rule {
 public:
-	Predicate predicate;
+	Scheme scheme;
 	std::vector<Predicate> predicate_list;
 
-	friend std::ostream& operator<<(std::ostream& os, const Rule& obj);
-
-	void determineDomain(std::set<std::string>* domain);
+	// friend std::ostream& operator<<(std::ostream& os, const Rule& obj);
 };
 
-// class Query : public Predicate {};
+class Query {
+public:
+	std::string identifier;
+	std::vector<Parameter*> param_list;
+};
 
 class DatalogProgram {
 public:
-	std::vector<Predicate> scheme_list;
-	std::vector<Predicate> fact_list;
+	std::vector<Scheme> scheme_list;
+	std::vector<Fact> fact_list;
 	std::vector<Rule> rule_list;
-	std::vector<Predicate> query_list;
+	std::vector<Query> query_list;
 
-	std::set<std::string> domain;
-
-	~DatalogProgram();
-
-	void determineDomain();
+	// void flatten(std::ostream&);
 
 	friend std::ostream& operator<<(std::ostream& os, const DatalogProgram& obj);
 };

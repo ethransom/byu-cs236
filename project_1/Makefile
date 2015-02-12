@@ -1,12 +1,14 @@
-CFLAGS=-g -std=c++11 -Wall
+CXXFLAGS=-g -std=c++11 -Wall
+
+MODULES=token.o lexer.o parser.o datalogprogram.o domain_collector.o seeker.o
 
 all: main
 
 pkg: main
 	zip lab1.zip *.h *.cpp
 
-main: *.cpp *.h
-	g++ *.cpp -o main -Wall -std=c++11 -g
+main: $(MODULES) main.cpp
+	g++ $(MODULES) main.cpp -o main -Wall -std=c++11 -g
 
 test: inputs/* *.cpp *.h
 	./test.sh

@@ -7,6 +7,8 @@
 #include "token.h"
 #include "lexer.h"
 #include "parser.h"
+#include "datalogprogram.h"
+#include "domain_collector.h"
 
 std::string slurp(std::ifstream& in) {
     std::stringstream sstr;
@@ -18,34 +20,60 @@ std::string slurp(std::ifstream& in) {
  * Main entry point. Deals with parsing and validation of command line arguments
 */
 int main(int argc, char** argv) {
-	if (argc != 2) {
+	bool dump_tokens = false;
+	char* filename = NULL;
+
+	// arg parsing loop
+	for (int i = 1; i < argc; ++i) {
+		if (!strcmp(argv[i], "--tokens")) {
+			dump_tokens = true;
+		} else {
+			if (filename != NULL) {
+				std::cout << "Too many input files!" << std::endl;
+				return 0;
+			}
+			filename = argv[i];
+		}
+	}
+
+	if (filename == NULL) {
 		std::cout << "You must provide an input file" << std::endl;
 		return 1;
 	}
 
-	std::string filename(argv[1]);
-	std::ifstream input(filename);
+	std::string filestr(filename);
+	std::ifstream input(filestr);
 	std::string str = slurp(input);
 
 	Lexer lexer(&str);
 	auto tokens = lexer.lex_file();
 
-	// for (auto t : tokens) {
-	// 	std::cout << t << std::endl;
-	// }
+	if (dump_tokens) {
+		for (auto t : tokens) {
+			std::cout << t << std::endl;
+		}
 
-	// std::cout << "Total Tokens = " << tokens.size() << std::endl;
+		std::cout << "Total Tokens = " << tokens.size() << std::endl;
+
+		return 0;
+	}
 
 	Parser parser(&tokens);
 
 	DatalogProgram prog;
 	Token* offending = parser.parse_tokens(prog);
-	if (offending == NULL) {
-		std::cout << "Failure!" << std::endl << "  " << offending << std::endl;
+	if (offending != NULL) {
+		std::cout << "Failure!" << std::endl << "  " << *offending << std::endl;
 		return 0;
 	}
 
-	std::cout << "Success!" << std::endl << prog;
+	DomainCollector collector;
+	collector.collect(prog);
+
+	std::cout << "Success!" << std::endl;
+	std::cout << prog;
+
+	std::cout << collector;
 
 	return 0;
 }

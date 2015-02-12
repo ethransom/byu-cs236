@@ -1,43 +1,43 @@
 #pragma once
 
 #include <iostream>
-#include <queue>
+#include <deque>
 #include <vector>
-#include <exception>
+#include <string>
 
 #include "token.h"
 #include "datalogprogram.h"
 
-class ParseError : public std::exception {
-	const char* what() const throw();
-};
-
 class Parser {
 	std::deque<Token>* tokens;
 
-	void error();
-	bool accept(Token_type token);
-	bool accept(Token_type token, std::string* dest);
+	// does the current token have type 'type'?
+	bool peek(Token_type token);
+	// match the token and copy the string to dest
+	bool match(Token_type token, std::string& dest);
+	// match the token and discard the string
+	bool match(Token_type token);
 
 	// BEGIN PARSE RULES
 
-	// all rules passed a ref to the object they're supposed to parse
-	// all rules return success status as boolean
-	// rules won't modify ref if unsuccessful
-	// TODO: ^ good idea? actually true?
-
 	bool program(DatalogProgram& prog);
-	bool scheme_list(std::vector<Predicate>&);
-	bool fact_list(std::vector<Predicate>&);
-	bool fact(Predicate&);
-	bool rule_list(std::vector<Rule>&);
+	bool scheme(Scheme&);
+	bool scheme_list(std::vector<Scheme>&);
+	bool id_list(std::vector<Identifier>&);
+	bool fact(Fact&);
+	bool fact_list(std::vector<Fact>&);
 	bool rule(Rule&);
-	bool query_list(std::vector<Predicate>&);
-	bool query(Predicate&);
-	bool predicate_list(std::vector<Predicate>&);
+	bool rule_list(std::vector<Rule>&);
+	bool head_predicate(Predicate&);
 	bool predicate(Predicate&);
-	bool parameter_list(std::vector<Parameter>&);
-	bool parameter(Parameter&);
+	bool predicate_list(std::vector<Predicate>&);
+	bool parameter(Parameter*&);
+	bool parameter_list(std::vector<Parameter*>&);
+	bool expression(Expression&);
+	bool binary_operator(char&);
+	bool query(Query&);
+	bool query_list(std::vector<Query>&);
+	bool string_list(std::vector<Literal>& strings);
 
 public:
 	Parser(std::deque<Token>*);

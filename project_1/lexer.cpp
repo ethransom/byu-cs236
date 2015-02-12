@@ -1,5 +1,6 @@
 #include <cctype>
 #include <vector>
+#include <stdint.h>
 
 #include "lexer.h"
 
@@ -165,8 +166,8 @@ std::deque<Token> Lexer::lex_file() {
 
 			TRY_AUTOMATON(read_string(), STRING);
 
-			TRY_AUTOMATON(read_multiline_comment(), COMMENT);
-			TRY_AUTOMATON(read_comment(), COMMENT);
+			TRY_AUTOMATON(read_multiline_comment(), NONE);
+			TRY_AUTOMATON(read_comment(), NONE);
 
 			TRY_AUTOMATON(read_whitespace(), NONE);
 

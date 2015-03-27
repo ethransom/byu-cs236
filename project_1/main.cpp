@@ -9,6 +9,8 @@
 #include "parser.h"
 #include "datalogprogram.h"
 #include "domain_collector.h"
+#include "database.h"
+#include "relation.h"
 
 std::string slurp(std::ifstream& in) {
     std::stringstream sstr;
@@ -21,12 +23,15 @@ std::string slurp(std::ifstream& in) {
 */
 int main(int argc, char** argv) {
 	bool dump_tokens = false;
+	bool dump_ast = false;
 	char* filename = NULL;
 
 	// arg parsing loop
 	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "--tokens")) {
 			dump_tokens = true;
+		} else if (!strcmp(argv[i], "--ast")) {
+			dump_ast = true;
 		} else {
 			if (filename != NULL) {
 				std::cout << "Too many input files!" << std::endl;
@@ -70,10 +75,40 @@ int main(int argc, char** argv) {
 	DomainCollector collector;
 	collector.collect(prog);
 
-	std::cout << "Success!" << std::endl;
-	std::cout << prog;
+	if (dump_ast) {
+		std::cout << "Success!" << std::endl;
+		std::cout << prog;
 
-	std::cout << collector;
+		std::cout << collector;
+
+		return 0;
+	}
+
+	Database db;
+
+	for (auto scheme : prog.scheme_list) {
+		db.create(scheme);
+	}
+
+	for (auto fact : prog.fact_list) {
+		db.insert(fact);
+	}
+
+	// skip the facts, thank god
+
+	for (auto query : prog.query_list) {
+		auto relation = db.query(query);
+
+		std::cout << query;
+
+		if (relation.size() > 0) {
+			std::cout << " Yes(" << relation.size() << ")" << std::endl;
+			if (relation.is_dirty())
+				relation.print(std::cout);
+		} else {
+			std::cout << "No" << std::endl;
+		}
+	}
 
 	return 0;
 }

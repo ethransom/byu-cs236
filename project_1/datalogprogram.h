@@ -3,18 +3,19 @@
 #include <vector>
 #include <ostream>
 #include <set>
+#include <exception>
 
 #include "token.h"
 
-class Parameter {
-public:
-	void collectDomain(std::set<std::string>&) const {};
-
-	virtual void flatten(std::ostream& os) const = 0;
-	// virtual std::ostream& operator<<(std::ostream& os) = 0;
+enum ParamType {
+	EXPRESSION,
+	IDENTIFIER,
+	LITERAL
 };
 
-class Expression : public Parameter {
+class Parameter;
+
+class Expression {
 public:
 	Parameter* left;
 	char type;
@@ -22,30 +23,64 @@ public:
 
 	void collectDomain(std::set<std::string>&) const;
 
-	virtual void flatten(std::ostream& os) const { left->flatten(os); os << type; right->flatten(os); };
-	// virtual std::ostream& operator<<(std::ostream& os);
+	// void flatten(std::ostream& os) const { left->flatten(os); os << type; right->flatten(os); };
+	void flatten(std::ostream& os) const;
+
+	void eval();
 };
 
-class Identifier : public Parameter {
+class Identifier {
 public:
 	void collectDomain(std::set<std::string>&) const {};
 	std::string str;
 
-	virtual void flatten(std::ostream& os) const { os << str; };
-	// virtual std::ostream& operator<<(std::ostream& os);
+	void flatten(std::ostream& os) const { os << str; };
 
 	friend std::ostream& operator<<(std::ostream& os, const Identifier&);
+
+	void eval();
 };
 
-class Literal : public Parameter {
+class Literal {
 public:
 	void collectDomain(std::set<std::string>&) const;
 	std::string str;
 
-	virtual void flatten(std::ostream& os) const { os << str; };
-	// virtual std::ostream& operator<<(std::ostream& os);
+	void flatten(std::ostream& os) const { os << str; };
 
 	friend std::ostream& operator<<(std::ostream& os, const Literal&);
+
+	void eval();
+};
+
+class Parameter {
+public:
+	Parameter(ParamType t) {
+		type = t;
+		switch (t) {
+			case EXPRESSION:
+				new(&expression) Expression();
+				break;
+			case IDENTIFIER:
+				new(&identifier) Identifier();
+				break;
+			case LITERAL:
+				new(&literal) Literal();
+				break;
+		}
+	};
+	ParamType type;
+	union {
+		Expression expression;
+		Identifier identifier;
+		Literal literal;
+	};
+
+	void collectDomain(std::set<std::string>&) const {};
+
+	void flatten(std::ostream& os) const;
+
+	void eval();
 };
 
 class Predicate {
@@ -85,6 +120,7 @@ class Query {
 public:
 	std::string identifier;
 	std::vector<Parameter*> param_list;
+	friend std::ostream& operator<<(std::ostream& os, const Query& obj);
 };
 
 class DatalogProgram {

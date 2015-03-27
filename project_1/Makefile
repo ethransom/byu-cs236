@@ -1,6 +1,7 @@
 CXXFLAGS=-g -std=c++11 -Wall
 
-MODULES=token.o lexer.o parser.o datalogprogram.o domain_collector.o seeker.o
+MODULES=token.o lexer.o parser.o datalogprogram.o domain_collector.o seeker.o \
+		relation.o database.o
 
 all: main
 

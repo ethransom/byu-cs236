@@ -239,26 +239,32 @@ bool Parser::predicate_list(std::vector<Predicate>& predicates) {
 
 bool Parser::parameter(Parameter*& parameter) {
 	if (peek(STRING)) {
-		Literal* literal = new Literal();
-		parameter = literal;
+		// Literal* literal = new Literal();
+		parameter = new Parameter(LITERAL);
+		// parameter->type = LITERAL;
+		// parameter->literal();
 		return (
-			match(STRING, literal->str)
+			match(STRING, parameter->literal.str)
 		);
 	}
 
 	if (peek(ID)) {
-		Identifier* identifier = new Identifier();
-		parameter = identifier;
+		// Identifier* identifier = new Identifier();
+		parameter = new Parameter(IDENTIFIER);
+		// parameter->type = IDENTIFIER;
+		// parameter->identifier();
 		return (
-			match(ID, identifier->str)
+			match(ID, parameter->identifier.str)
 		);
 	}
 
 	if (peek(LEFT_PAREN)) {
-		Expression* expr = new Expression();
-		parameter = expr;
+		// Expression* expr = new Expression();
+		parameter = new Parameter(EXPRESSION);
+		// parameter->type = EXPRESSION;
+		// parameter->expression();
 		return (
-			expression(*expr)
+			expression(parameter->expression)
 		);
 	}
 

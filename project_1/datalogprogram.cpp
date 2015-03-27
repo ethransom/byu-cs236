@@ -5,8 +5,40 @@ void Expression::collectDomain(std::set<std::string>& domain) const {
 	right->collectDomain(domain);
 }
 
+void Expression::eval() {
+	throw "YOlo was TOO DAMn hIHG";
+}
+
+void Expression::flatten(std::ostream& os) const {
+	left->flatten(os);
+	os << type;
+	right->flatten(os);
+}
+
+void Identifier::eval() {
+	std::cout << "Identifier eval" << std::endl;
+}
+
+void Literal::eval() {
+	std::cout << "Literal eval" << std::endl;
+}
+
 void Literal::collectDomain(std::set<std::string>& domain) const {
 	domain.insert(str);
+}
+
+void Parameter::flatten(std::ostream& os) const {
+	switch (type) {
+		case EXPRESSION:
+			expression.flatten(os);
+			break;
+		case IDENTIFIER:
+			identifier.flatten(os);
+			break;
+		case LITERAL:
+			literal.flatten(os);
+			break;
+	}
 }
 
 // std::ostream& Literal::operator<<(std::ostream& os) {
@@ -102,7 +134,7 @@ std::ostream& operator<<(std::ostream& os, const Query& query) {
 		query.param_list[i]->flatten(os);
 	}
 
-	os << ")";
+	os << ")?";
 
 	return os;
 }

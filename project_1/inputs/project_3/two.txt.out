@@ -1,0 +1,15 @@
+ab('joe','jim')? Yes(1)
+ab(who,'bob')? Yes(3)
+  who='bob'
+  who='jim'
+  who='joe'
+ab('joe',anyone)? Yes(2)
+  anyone='bob'
+  anyone='jim'
+ab(X,X)? Yes(1)
+  X='bob'
+ab(X,Y)? Yes(4)
+  X='bob', Y='bob'
+  X='jim', Y='bob'
+  X='joe', Y='bob'
+  X='joe', Y='jim'

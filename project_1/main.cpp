@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 			if (relation.is_dirty())
 				relation.print(std::cout);
 		} else {
-			std::cout << "No" << std::endl;
+			std::cout << " No" << std::endl;
 		}
 	}
 

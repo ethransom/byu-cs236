@@ -57,21 +57,26 @@ void Relation::insert(std::vector<Literal>& values) {
 }
 
 void Relation::select(std::string* str, uint pos) {
-	// return;
-	for (auto i = rows.begin(); i != rows.end();) {
-		if ((*i)[pos] != *str)
-			rows.erase(i);
-		i++;
+	std::set<std::vector<std::string>> new_rows;
+
+	for (auto i = rows.begin(); i != rows.end(); i++) {
+		if ((*i)[pos] == *str)
+			new_rows.insert(*i);
 	}
+
+	rows = new_rows;
 }
 
 void Relation::select(uint one, uint two) {
-	for (auto i = rows.begin(); i != rows.end();) {
-		if ((*i)[one] != (*i)[two]) {
-			rows.erase(i);
+	std::set<std::vector<std::string>> new_rows;
+
+	for (auto i = rows.begin(); i != rows.end(); i++) {
+		if ((*i)[one] == (*i)[two]) {
+			new_rows.insert(*i);
 		}
-		i++;
 	}
+
+	rows = new_rows;
 }
 
 void Relation::project(uint pos) {

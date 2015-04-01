@@ -31,7 +31,7 @@ Relation Database::query(Query& query) {
 			rel.select(&param->literal.str, pos);
 			projects.push_back(NULL);
 		} else if (param->type == EXPRESSION) {
-			std::cout << "I was promised no exressions!" << std::endl;
+			std::cout << "I was promised no expressions!" << std::endl;
 			throw "EXPRESSION! :( ";
 		}
 
@@ -49,6 +49,7 @@ Relation Database::query(Query& query) {
 					rel.select(i, pos);
 
 					projects.erase(projects.begin() + pos);
+					pos--;
 					rel.project(pos);
 				}
 			}

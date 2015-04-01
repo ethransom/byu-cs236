@@ -1,0 +1,20 @@
+people('joe','jim')? Yes(1)
+people(who,'bob')? Yes(3)
+  who='bob'
+  who='jim'
+  who='joe'
+people('joe',anyone)? Yes(2)
+  anyone='bob'
+  anyone='jim'
+people(X,X)? Yes(1)
+  X='bob'
+people(X,Y)? Yes(4)
+  X='bob', Y='bob'
+  X='jim', Y='bob'
+  X='joe', Y='bob'
+  X='joe', Y='jim'
+employer('ralph',X)? Yes(1)
+  X='howard'
+employer('bob','bob')? No
+employer(X,Y)? Yes(1)
+  X='ralph', Y='howard'

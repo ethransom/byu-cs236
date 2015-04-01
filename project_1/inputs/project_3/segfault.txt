@@ -1,0 +1,12 @@
+Schemes:
+	fart(a,b,c,d)
+Facts:
+	fart('1','2','3','4').
+Rules:
+	DoNothing(Z) :- Stuff(Z).
+Queries:
+	fart(a,a,a,a)? 
+	fart('1',b,b,b)?
+	fart(c,'2',c,c)?
+	fart(d,d,'3',d)?
+	fart(e,e,e,'4')?

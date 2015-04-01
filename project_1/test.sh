@@ -17,6 +17,6 @@ run_suite() {
 }
 
 # run_suite inputs/project_1 '--tokens'
-run_suite inputs/project_2
+run_suite inputs/project_3
 
 echo "All Tests Succeeded!"

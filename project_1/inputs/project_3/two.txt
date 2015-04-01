@@ -1,0 +1,15 @@
+Schemes: 
+	ab(A,B)
+Facts:
+	ab('joe','bob').
+	ab('jim','bob').
+	ab('joe','jim').
+	ab('bob','bob').
+Rules:
+
+Queries:
+	ab('joe','jim')?
+	ab( who, 'bob')?
+	ab('joe', anyone)?
+	ab(X,X)?
+	ab(X,Y)?

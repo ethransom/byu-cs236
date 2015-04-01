@@ -1,0 +1,5 @@
+dc('ralph',X)? Yes(1)
+  X='howard'
+dc('bob','bob')? No
+dc(X,Y)? Yes(1)
+  X='ralph', Y='howard'

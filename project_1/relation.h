@@ -27,6 +27,8 @@ public:
 	// has the relation been projected or renamed?
 	bool is_dirty();
 
+	bool has_column(std::string& column);
+
 	void insert(std::vector<Literal>&);
 
 	void select(std::string* str, uint pos);
@@ -37,4 +39,9 @@ public:
 	void project(uint pos);
 
 	void rename(std::string* str, uint pos);
+
+	void join(Relation& other);
+
+	// returns true if new tuples were added
+	bool merge(Relation& other, std::vector<Identifier> pattern);
 };

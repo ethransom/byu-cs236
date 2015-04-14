@@ -17,14 +17,26 @@ void Database::insert(Fact& fact) {
 	relations[fact.identifier]->insert(fact.param_list);
 }
 
-Relation Database::query(Query& query) {
+bool Database::interpret(Rule& rule) {
+	Relation result = query(rule.predicate_list[0]);
+
+	for (uint i = 1; i < rule.predicate_list.size(); i++) {
+		Relation intermediate = query(rule.predicate_list[i]);
+
+		result.join(intermediate);
+	}
+
+	return relations[rule.scheme.identifier]->merge(result, rule.scheme.param_list);
+}
+
+Relation Database::query(Predicate& query) {
 	// copy? hopefully?
 	Relation rel = *relations[query.identifier];
 
 	std::vector<std::string*> projects;
 
 	uint pos = 0;
-	for (auto param : query.param_list) {
+	for (auto& param : query.param_list) {
 		if (param->type == IDENTIFIER) {
 			projects.push_back(&param->identifier.str);
 		} else if (param->type == LITERAL) {

@@ -116,19 +116,12 @@ public:
 	// friend std::ostream& operator<<(std::ostream& os, const Rule& obj);
 };
 
-class Query {
-public:
-	std::string identifier;
-	std::vector<Parameter*> param_list;
-	friend std::ostream& operator<<(std::ostream& os, const Query& obj);
-};
-
 class DatalogProgram {
 public:
 	std::vector<Scheme> scheme_list;
 	std::vector<Fact> fact_list;
 	std::vector<Rule> rule_list;
-	std::vector<Query> query_list;
+	std::vector<Predicate> query_list;
 
 	// void flatten(std::ostream&);
 

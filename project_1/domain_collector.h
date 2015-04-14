@@ -18,8 +18,6 @@ class DomainCollector {
 
 	void collect(const Rule&);
 
-	void collect(const Query&);
-
 public:
 	void collect(const DatalogProgram&);
 

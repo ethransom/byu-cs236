@@ -17,5 +17,7 @@ public:
 
 	void insert(Fact&);
 
-	Relation query(Query&);
+	bool interpret(Rule&);
+
+	Relation query(Predicate&);
 };

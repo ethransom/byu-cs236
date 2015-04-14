@@ -94,12 +94,26 @@ int main(int argc, char** argv) {
 		db.insert(fact);
 	}
 
-	// skip the facts, thank god
+	bool added;
+	int passes = 0;
+	do {
+		added = false;
+		std::cout << "Beginning pass...";
+		for (auto rule : prog.rule_list) {
+			if (db.interpret(rule))
+				added = true;
+		}
+		std::cout << "done." << std::endl;
+		passes++;
+	} while (added && passes < 5);
 
-	for (auto query : prog.query_list) {
+	std::cout << "Schemes populated after " << passes
+		<< " passes through the Rules." << std::endl;
+
+	for (auto& query : prog.query_list) {
 		auto relation = db.query(query);
 
-		std::cout << query;
+		std::cout << query << "?";
 
 		if (relation.size() > 0) {
 			std::cout << " Yes(" << relation.size() << ")" << std::endl;

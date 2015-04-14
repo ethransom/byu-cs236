@@ -37,7 +37,7 @@ bool Parser::program(DatalogProgram& prog) {
 	prog.scheme_list.emplace_back();
 	Scheme& first_scheme = prog.scheme_list.back();
 	prog.query_list.emplace_back();
-	Query& first_query = prog.query_list.back();
+	Predicate& first_query = prog.query_list.back();
 
 	return (
 		match(SCHEMES) &&
@@ -239,30 +239,21 @@ bool Parser::predicate_list(std::vector<Predicate>& predicates) {
 
 bool Parser::parameter(Parameter*& parameter) {
 	if (peek(STRING)) {
-		// Literal* literal = new Literal();
 		parameter = new Parameter(LITERAL);
-		// parameter->type = LITERAL;
-		// parameter->literal();
 		return (
 			match(STRING, parameter->literal.str)
 		);
 	}
 
 	if (peek(ID)) {
-		// Identifier* identifier = new Identifier();
 		parameter = new Parameter(IDENTIFIER);
-		// parameter->type = IDENTIFIER;
-		// parameter->identifier();
 		return (
 			match(ID, parameter->identifier.str)
 		);
 	}
 
 	if (peek(LEFT_PAREN)) {
-		// Expression* expr = new Expression();
 		parameter = new Parameter(EXPRESSION);
-		// parameter->type = EXPRESSION;
-		// parameter->expression();
 		return (
 			expression(parameter->expression)
 		);
@@ -320,17 +311,16 @@ bool Parser::binary_operator(char& op) {
 	return false;
 }
 
-bool Parser::query(Query& query) {
+bool Parser::query(Predicate& predicate) {
 	if (peek(ID)) {
-		query.param_list.emplace_back();
-		Parameter*& param = query.param_list.back();
+		predicate.param_list.emplace_back();
+		Parameter*& first_param = predicate.param_list.back();
 
-		// TODO: call to predicate() instead?
 		return (
-			match(ID, query.identifier) &&
+			match(ID, predicate.identifier) &&
 			match(LEFT_PAREN) &&
-			parameter(param) &&
-			parameter_list(query.param_list) &&
+			parameter(first_param) &&
+			parameter_list(predicate.param_list) &&
 			match(RIGHT_PAREN) &&
 			match(Q_MARK)
 		);
@@ -339,10 +329,10 @@ bool Parser::query(Query& query) {
 	return false;
 }
 
-bool Parser::query_list(std::vector<Query>& out) {
+bool Parser::query_list(std::vector<Predicate>& out) {
 	if (peek(ID)) {
 		out.emplace_back();
-		Query& first = out.back();
+		Predicate& first = out.back();
 		return (
 			query(first) &&
 			query_list(out)

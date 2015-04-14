@@ -35,8 +35,8 @@ class Parser {
 	bool parameter_list(std::vector<Parameter*>&);
 	bool expression(Expression&);
 	bool binary_operator(char&);
-	bool query(Query&);
-	bool query_list(std::vector<Query>&);
+	bool query(Predicate&);
+	bool query_list(std::vector<Predicate>&);
 	bool string_list(std::vector<Literal>& strings);
 
 public:

@@ -23,11 +23,6 @@ void DomainCollector::collect(const Rule& rule) {
 		collect(predicate);
 }
 
-void DomainCollector::collect(const Query& query) {
-	for (const auto param : query.param_list)
-		collect(param);
-}
-
 void DomainCollector::collect(const DatalogProgram& program) {
 	// schemes have identifiers, no strings
 

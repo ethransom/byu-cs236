@@ -125,19 +125,19 @@ std::ostream& operator<<(std::ostream& os, const Rule& rule) {
 	return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Query& query) {
-	os << query.identifier << "(";
+// std::ostream& operator<<(std::ostream& os, const Query& query) {
+// 	os << query.identifier << "(";
 
-	for (size_t i = 0; i < query.param_list.size(); ++i) {
-		if (i != 0)
-			os << ",";
-		query.param_list[i]->flatten(os);
-	}
+// 	for (size_t i = 0; i < query.param_list.size(); ++i) {
+// 		if (i != 0)
+// 			os << ",";
+// 		query.param_list[i]->flatten(os);
+// 	}
 
-	os << ")?";
+// 	os << ")?";
 
-	return os;
-}
+// 	return os;
+// }
 
 std::ostream& operator<<(std::ostream& os, const DatalogProgram& obj) {
 	os << "Schemes(" << obj.scheme_list.size() << "):" << std::endl;
